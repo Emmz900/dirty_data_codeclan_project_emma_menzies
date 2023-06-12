@@ -1,0 +1,68 @@
+---
+title: "Seabirds Analysis"
+output: html_notebook
+---
+
+# Seabirds analysis
+
+```{r}
+library(tidyverse)
+library(here)
+
+seabirds_clean <- read_csv(here("clean_data/seabirds_clean.csv"))
+```
+## General Observations
+```{r}
+seabirds_clean %>% 
+  group_by(family) %>% 
+  summarise(total = n())
+```
+
+```{r}
+seabirds_clean %>% 
+  filter(str_detect(seabirds_joined$species_common_name, "albatross"))
+
+seabirds_clean %>% 
+  distinct(species_scientific_name)
+```
+
+
+## Which bird had the most individual sightings?
+```{r}
+seabirds_clean %>% 
+  group_by(species_scientific_name) %>% # common name has unidentified species and
+                                        # abbreviation contains age info.
+  summarise(total_sightings = n()) %>% 
+  arrange(desc(total_sightings))
+
+seabirds_clean %>% 
+  select(species_common_name, species_scientific_name, species_abbreviation) %>% 
+  filter(species_scientific_name == "Diomedea antipodensis")
+```
+
+
+## Which bird had the highest total count?
+```{r}
+
+```
+
+
+## Which bird had the highest total count above a latitude of -30?
+```{r}
+
+```
+
+
+## How many different types of birds were only ever seen in groups of 1?
+```{r}
+
+```
+
+
+## How many penguins were seen? (Hint: there are many types of penguin)
+```{r}
+
+```
+
+
+
