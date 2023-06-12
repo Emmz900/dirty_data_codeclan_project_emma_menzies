@@ -50,11 +50,11 @@ seabirds_clean %>%
   distinct()
 
 ```
+**MOST COMMON BIRD SIGHTINGS**
 Common Name                    | Species Name          | Species Abbreviation | Number of sightings
 ------------------------------ |---------------------- |--------------------- |-------------------- 
 Wandering albatross sensu lato | Diomedea antipodensis | DIOANTEXU            | 11,293
 
-The most common species sighted was a Wandering albatross sensu lato (Diomedea antipodensis, DIOANTEXU) at 11,293 sightings. 
 
 ## Which bird had the highest total count?
 ```{r}
@@ -83,7 +83,7 @@ seabirds_clean %>%
   filter(species_scientific_name == "Puffinus pacificus") %>% 
   distinct()
 ```
-The Wedge-tailed shearwater (Puffinus pacificus, PUFPAC)......GO BACK AND PRINT RESULT NICELY
+The Wedge-tailed shearwater (Puffinus pacificus, PUFPAC) had the highest total count from sightings above a latitude of -30.
 
 ## How many different types of birds were only ever seen in groups of 1?
 ```{r}
