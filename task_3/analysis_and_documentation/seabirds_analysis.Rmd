@@ -13,55 +13,96 @@ seabirds_clean <- read_csv(here("clean_data/seabirds_clean.csv"))
 ```
 ## General Observations
 ```{r}
-seabirds_clean %>% 
-  group_by(family) %>% 
-  summarise(total = n())
+seabirds_clean
 ```
 
 ```{r}
+#hide chunk
 seabirds_clean %>% 
-  filter(str_detect(seabirds_joined$species_common_name, "albatross"))
-
-seabirds_clean %>% 
-  distinct(species_scientific_name)
+  count(species_scientific_name)
 ```
+ - make list
+There are 150 different common names.
+There are 125 different scientific names, these encompass 47 families.
+There are 142 different abreviations.
+
 
 
 ## Which bird had the most individual sightings?
 ```{r}
 seabirds_clean %>% 
-  group_by(species_scientific_name) %>% # common name has unidentified species and
-                                        # abbreviation contains age info.
+  group_by(species_scientific_name) %>%
+  summarise(total_sightings = n()) %>% 
+  arrange(desc(total_sightings))
+
+seabirds_clean %>% 
+  group_by(family) %>%
   summarise(total_sightings = n()) %>% 
   arrange(desc(total_sightings))
 
 seabirds_clean %>% 
   select(species_common_name, species_scientific_name, species_abbreviation) %>% 
-  filter(species_scientific_name == "Diomedea antipodensis")
-```
+  filter(species_scientific_name == "Diomedea antipodensis") %>% 
+  distinct()
 
+```
+The most common species sighted was a Wandering albatross sensu lato (Diomedea antipodensis, DIOANTEXU) at 11,293 sightings. 
 
 ## Which bird had the highest total count?
 ```{r}
+seabirds_clean %>%
+  group_by(species_scientific_name) %>% 
+  summarise(total_count = sum(count, na.rm = TRUE)) %>% 
+  arrange(desc(total_count))
 
+seabirds_clean %>% 
+  select(species_common_name, species_scientific_name, species_abbreviation) %>% 
+  filter(species_scientific_name == "Puffinus tenuirostris") %>% 
+  distinct()
 ```
-
+The short-tailed shearwater (or sooty shearwater,	Puffinus tenuirostris, PUFTEN/PUFTENGRI) has the highest total count across all sightings at 996,082.
 
 ## Which bird had the highest total count above a latitude of -30?
 ```{r}
+seabirds_clean %>%
+  filter(lat > -30) %>% 
+  group_by(species_scientific_name) %>% 
+  summarise(total_count = sum(count, na.rm = TRUE)) %>% 
+  arrange(desc(total_count))
 
+seabirds_clean %>% 
+  select(species_common_name, species_scientific_name, species_abbreviation) %>% 
+  filter(species_scientific_name == "Puffinus pacificus") %>% 
+  distinct()
 ```
-
+The Wedge-tailed shearwater (Puffinus pacificus, PUFPAC)......GO BACK AND PRINT RESULT NICELY
 
 ## How many different types of birds were only ever seen in groups of 1?
 ```{r}
-
+seabirds_clean %>% 
+  group_by(species_scientific_name) %>% 
+  filter(mean(count, na.rm = TRUE) == 1) %>% #this assumes that there are no species that happen to have an average of 1 despite some variation within count
+  summarise()
 ```
+There were 21 different species which were only ever seen on their own.
 
-
-## How many penguins were seen? (Hint: there are many types of penguin)
+## How many penguins were seen?
 ```{r}
+total_num_of_penguins <- seabirds_clean %>% 
+  filter(str_detect(species_common_name, "penguin")) %>% 
+  #group_by(species_common_name) %>% 
+  summarise(total = n()) %>% 
+  pull()
 
+penguin_species <- seabirds_clean %>% 
+  filter(str_detect(species_common_name, "penguin")) %>% 
+  group_by(species_common_name) %>% 
+  summarise(total = n()) %>% 
+  summarise(n()) %>% 
+  pull()
+
+paste("There were", total_num_of_penguins,
+      "penguins seen in total across", penguin_species, "different species.")
 ```
 
 

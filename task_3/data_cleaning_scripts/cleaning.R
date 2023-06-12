@@ -63,17 +63,15 @@ seabirds_joined <- seabirds_joined %>%
   mutate(species_common_name = 
            # str_extract(species_common_name,
            #             "[A-Z]+[a-z\\(\\) /'-]+[A-Z]*[a-z\\(\\) /'-]*"))
-           str_remove(species_common_name, "[:upper:]*$"),
+           str_remove(species_common_name, "[:upper:]*[0-9]*$"),
+         species_abbreviation = 
+           str_extract(species_abbreviation, "^[:upper:]+"),
          family =
            str_extract(species_scientific_name, "^[:alpha:]+"),
          genus = 
            str_extract(species_scientific_name, "[:alpha:]+$"),
          .after = species_scientific_name) %>% 
   relocate(family, .after = species_scientific_name)
-
-#FILL IN MISSING SPECIES NAMES BASED ON COMMON NAME IF POSSIBLE
-seabirds_joined %>% 
-  filter(str_detect(seabirds_joined$species_common_name, "albatross"))
 
 # Write csv
 write_csv(seabirds_joined, "clean_data/seabirds_clean.csv")
