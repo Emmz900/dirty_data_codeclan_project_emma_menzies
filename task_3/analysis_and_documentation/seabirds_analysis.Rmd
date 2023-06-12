@@ -5,7 +5,7 @@ output: html_notebook
 
 # Seabirds analysis
 
-```{r}
+```{r, message=FALSE}
 library(tidyverse)
 library(here)
 
@@ -16,29 +16,33 @@ seabirds_clean <- read_csv(here("clean_data/seabirds_clean.csv"))
 seabirds_clean
 ```
 
-```{r}
-#hide chunk
+```{r, echo = FALSE}
 seabirds_clean %>% 
   count(species_scientific_name)
+
+seabirds_clean %>% 
+  count(species_common_name)
+
+seabirds_clean %>% 
+  count(species_abbreviation)
+
+seabirds_clean %>% 
+  count(family)
 ```
- - make list
-There are 150 different common names.
-There are 125 different scientific names, these encompass 47 families.
-There are 142 different abreviations.
+* There are 47,918 rows of data and 12 columns
+* The data is all in the expected format
+* There are 125 different scientific names, these encompass 47 families.
+* There are 142 different abbreviations for species.
+* There are 150 different common names.
 
-
+***
 
 ## Which bird had the most individual sightings?
 ```{r}
 seabirds_clean %>% 
   group_by(species_scientific_name) %>%
   summarise(total_sightings = n()) %>% 
-  arrange(desc(total_sightings))
-
-seabirds_clean %>% 
-  group_by(family) %>%
-  summarise(total_sightings = n()) %>% 
-  arrange(desc(total_sightings))
+  slice_max(total_sightings, n = 1)
 
 seabirds_clean %>% 
   select(species_common_name, species_scientific_name, species_abbreviation) %>% 
@@ -46,6 +50,10 @@ seabirds_clean %>%
   distinct()
 
 ```
+Common Name                    | Species Name          | Species Abbreviation | Number of sightings
+------------------------------ |---------------------- |--------------------- |-------------------- 
+Wandering albatross sensu lato | Diomedea antipodensis | DIOANTEXU            | 11,293
+
 The most common species sighted was a Wandering albatross sensu lato (Diomedea antipodensis, DIOANTEXU) at 11,293 sightings. 
 
 ## Which bird had the highest total count?
