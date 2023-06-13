@@ -99,7 +99,7 @@ There were 21 different species which were only ever seen on their own.
 total_num_of_penguins <- seabirds_clean %>% 
   filter(str_detect(species_common_name, "penguin")) %>% 
   #group_by(species_common_name) %>% 
-  summarise(total = n()) %>% 
+  summarise(total = sum(count, na.rm = TRUE)) %>% 
   pull()
 
 penguin_species <- seabirds_clean %>% 

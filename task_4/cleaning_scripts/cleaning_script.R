@@ -217,8 +217,13 @@ candy_full_data_clean <- candy_full_data_clean %>%
               "abstain|game|comics|dental|hugs|broken|vials|cash|glow_stick")
     ~ NA,
     str_detect(candy_type,
-               "chalk|bread|wheat|acetaminophen")
+               "chalk|bread|wheat|season|acetaminophen|vicodin")
     ~ NA,
+    str_detect(candy_type, "100_grand_bar") ~ "100_grand_bar",
+    str_detect(candy_type, "raisin") ~ "raisins",
+    str_detect(candy_type, "chick_o_sticks") ~ "chick_o_sticks",
+    str_detect(candy_type, "sourpatch_kids") ~ "sourpatch_kids",
+    str_detect(candy_type, "sweetums") ~ "sweetums",
     .default = candy_type
   )) %>% 
   filter(!is.na(candy_type))
