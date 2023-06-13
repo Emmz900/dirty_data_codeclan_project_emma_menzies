@@ -20,34 +20,39 @@ names(candy_2015)
 
 candy_2015_clean <- candy_2015 %>% 
   select(how_old_are_you:york_peppermint_patties, necco_wafers) %>% 
-  mutate("year" = 2015, "gender" = NA, "country" = NA, "state_province" = NA) %>% 
+  mutate("id" = paste0("2015_", row_number()), "year" = 2015, "gender" = NA,
+         "country" = NA, "state_province" = NA) %>% 
   rename("age" = how_old_are_you,
-         "trick_or_treating" = are_you_going_actually_going_trick_or_treating_yourself) %>%
+         "trick_or_treating" = 
+           are_you_going_actually_going_trick_or_treating_yourself) %>%
   relocate(age, .after = state_province) %>% 
   relocate(trick_or_treating, .after = age) %>% 
   pivot_longer(butterfinger:necco_wafers,
                names_to = "candy_type",
                values_to = "rating") %>% 
-  filter(!is.na(rating))
+  filter(!is.na(rating)) %>% 
+  select("id", "year", "gender", "country", "state_province",
+         "age", "trick_or_treating", "candy_type", "rating")
 
 # Clean 2016
 names(candy_2016)
 
 candy_2016_clean <- candy_2016 %>% 
   select(are_you_going_actually_going_trick_or_treating_yourself:york_peppermint_patties) %>% 
-  mutate("year" = 2016) %>% 
+  mutate("id" = paste0("2016_", row_number()),"year" = 2016) %>% 
   rename("gender" = your_gender,
          "country" = which_country_do_you_live_in,
          "state_province" = which_state_province_county_do_you_live_in,
          "age" = how_old_are_you,
-         "trick_or_treating" = are_you_going_actually_going_trick_or_treating_yourself
+         "trick_or_treating" =
+           are_you_going_actually_going_trick_or_treating_yourself
          ) %>% 
   pivot_longer(x100_grand_bar:york_peppermint_patties,
                names_to = "candy_type",
                values_to = "rating") %>% 
   filter(!is.na(rating)) %>% 
   # ensure columns are in right order
-  select("year", "gender", "country", "state_province",
+  select("id", "year", "gender", "country", "state_province",
          "age", "trick_or_treating", "candy_type", "rating")
 
 # Clean 2017  
@@ -57,7 +62,7 @@ head(candy_2017)
 
 candy_2017_clean <- candy_2017 %>% 
   select(q1_going_out:q6_york_peppermint_patties) %>% 
-  mutate("year" = 2017) %>% 
+  mutate("id" = paste0("2017_", row_number()),"year" = 2017) %>% 
   rename("gender" = q2_gender,
          "country" = q4_country,
          "state_province" = q5_state_province_county_etc,
@@ -71,13 +76,13 @@ candy_2017_clean <- candy_2017 %>%
   # candy types contain question numbers at the start, these are removed
   mutate(candy_type = str_remove(candy_type, "q[0-9]_")) %>% 
   # ensure columns are in right order
-  select("year", "gender", "country", "state_province",
+  select("id", "year", "gender", "country", "state_province",
          "age", "trick_or_treating", "candy_type", "rating")
 
 # Step 2 - Join ------------------------------------
 
 # Check the column headings match
-expected_names <- c("year", "gender", "country", "state_province", "age", "trick_or_treating", "candy_type", "rating")
+expected_names <- c("id", "year", "gender", "country", "state_province", "age", "trick_or_treating", "candy_type", "rating")
 
 candy_2015_clean %>% 
 verify(names(candy_2015_clean) == expected_names)
@@ -113,7 +118,7 @@ candy_full_data %>%
   summarise(total = n())
 
 # check trick or treating
-candy_full_data_clean %>% 
+candy_full_data %>% 
   group_by(trick_or_treating) %>% 
   summarise(total = n())
 

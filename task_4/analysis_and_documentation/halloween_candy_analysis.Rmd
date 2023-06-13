@@ -1,0 +1,47 @@
+---
+title: "Halloween Candy Analysis"
+output: html_notebook
+---
+
+# Hallowe'en Candy Analysis
+
+## Introduction
+
+## Set up
+```{r}
+library(tidyverse)
+library(here)
+
+candy_data <- read_csv(here("clean_data/candy_data_clean.csv"))
+```
+
+## What is the total number of candy ratings given across the three years.
+Since each row is an individual rating, and all missing ratings have been removed, the number of ratings is equivalent to the number of rows.
+```{r}
+num_of_ratings <- nrow(candy_data)
+
+cat("The total number of ratings is", num_of_ratings)
+```
+## What was the average age of people who are going out trick or treating?
+```{r}
+candy_data %>% 
+  group_by(id) %>% 
+  filter(trick_or_treating == "Yes") %>% 
+  summarise(age = mean(age)) %>% 
+  summarise(average_age = mean(age, na.rm = TRUE))
+```
+
+
+## What was the average age of people who are not going trick or treating?
+
+## For each of joy, despair and meh, which candy bar received the most of these ratings?
+
+## How many people rated Starburst as despair?
+
+For the next three questions, count despair as -1, joy as +1, and meh as 0.
+
+## What was the most popular candy bar by this rating system for each gender in the dataset?
+
+## What was the most popular candy bar in each year?
+
+## What was the most popular candy bar by this rating for people in US, Canada, UK, and all other countries?
