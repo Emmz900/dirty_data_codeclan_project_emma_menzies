@@ -11,7 +11,7 @@ candy_2015 <- clean_names(candy_2015)
 candy_2016 <- clean_names(candy_2016)
 candy_2017 <- clean_names(candy_2017)
 
-# Step 1 - Clean to join -------------------------------------------------------
+# Step 1 - Clean to Join -------------------------------------------------------
 # Clean each dataset to look like:
 # year | gender | country | state_province | age | trick_or_treating | candy_type | rating
 
@@ -20,7 +20,7 @@ names(candy_2015)
 
 candy_2015_clean <- candy_2015 %>% 
   select(how_old_are_you:york_peppermint_patties, necco_wafers) %>% 
-  mutate("id" = paste0("2015_", row_number()), "year" = 2015, "gender" = NA,
+  mutate("id" = paste0("2015_", row_number()), "year" = 2015, "gender" = "Not gathered",
          "country" = NA, "state_province" = NA) %>% 
   rename("age" = how_old_are_you,
          "trick_or_treating" = 
@@ -100,8 +100,7 @@ glimpse(candy_2017_clean)
 candy_full_data <- candy_2015_clean %>% 
   bind_rows(candy_2016_clean, candy_2017_clean)
 
-# Step 3 - Check ----------------------------------------
-# check the join has worked
+# Step 3 - Check the join has worked ----------------------------------------
 candy_full_data %>% 
   summarise(across(.cols = everything(), .fns = ~sum(is.na(.x))))
 glimpse(candy_full_data)
@@ -145,11 +144,12 @@ candy_full_data_clean <- candy_full_data %>%
       country
     ))
 
-  # Clean 
+  # Clean general format
 candy_full_data_clean <- candy_full_data_clean %>% 
   mutate(country = str_to_lower(country)) %>% 
   mutate(country = str_remove_all(country, "[:punct:]"))
-  
+
+  # Fix variations in countries
 candy_full_data_clean <- candy_full_data_clean %>% 
   mutate(country = 
            case_when(
@@ -167,6 +167,7 @@ candy_full_data_clean <- candy_full_data_clean %>%
     # Find all UK names
     str_detect(country, "united kin|england|scotland|endland") ~ "uk",
     
+      #COULD PUT ALL OF THESE IN .default = "other" IF I add correct versions above
     #Remove nonsensical names
     str_detect(country,
                "one|where|never|gods|^eua|tropical|above|not|know|fear") 
