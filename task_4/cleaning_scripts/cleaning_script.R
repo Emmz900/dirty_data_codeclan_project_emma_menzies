@@ -77,7 +77,7 @@ candy_2017_clean <- candy_2017 %>%
 # Step 2 - Join ------------------------------------
 
 # Check the column headings match
-expected_names = c("year", "gender", "country", "state_province", "age", "trick_or_treating", "candy_type", "rating")
+expected_names <- c("year", "gender", "country", "state_province", "age", "trick_or_treating", "candy_type", "rating")
 
 candy_2015_clean %>% 
 verify(names(candy_2015_clean) == expected_names)
@@ -112,6 +112,11 @@ candy_full_data %>%
   group_by(gender) %>% 
   summarise(total = n())
 
+# check trick or treating
+candy_full_data_clean %>% 
+  group_by(trick_or_treating) %>% 
+  summarise(total = n())
+
 # Step 4 - Clean Country -----------------------------------------------
 candy_full_data %>% 
   group_by(country) %>% 
@@ -133,20 +138,22 @@ candy_full_data_clean <- candy_full_data %>%
       str_detect(country, "[0-9]"),
       NA, # this should run when country is numeric
       country
-    )
-    )
+    ))
 
   # Clean 
 candy_full_data_clean <- candy_full_data_clean %>% 
   mutate(country = str_to_lower(country)) %>% 
   mutate(country = str_remove_all(country, "[:punct:]"))
   
-candy_full_data_clean %>% 
-  mutate(country = case_when(
+candy_full_data_clean <- candy_full_data_clean %>% 
+  mutate(country = 
+           case_when(
     # Find all USA type names
     str_detect(country,
-               "^us|merica|states|california|murica|yoo ess|united s|
-               trump|pitts|carolina|amerca|u s|jersey")
+               "^us|erica|urica|states|amerca|yoo ess|united s|u s|murrika")
+    ~ "america",
+    str_detect(country,
+               "pitts|carolina|california|jersey|trump|york")
     ~ "america",
     
     # canada
@@ -157,8 +164,10 @@ candy_full_data_clean %>%
     
     #Remove nonsensical names
     str_detect(country,
-               "one|where|never|gods|^eua|tropical|above|not|
-               denial|earth|insanity|atlantis") 
+               "one|where|never|gods|^eua|tropical|above|not|know|fear") 
+    ~ NA,
+    str_detect(country,
+               "denial|earth|insanity|atlantis|narnia") 
     ~ NA,
     country %in% c("a", "can", "canae") ~ NA,
     
@@ -167,26 +176,62 @@ candy_full_data_clean %>%
     # cascadia 
     #(I am accepting this as a valid option although it is not technically a country at the moment)
     str_detect(country, "cascadia") ~ "cascadia",
+    # netherlands
+    str_detect(country, "netherlands") ~ "netherlands",
+    
     .default = country
-  )) %>% 
-  distinct(country) %>% 
-  print(n=40)
+  )) 
 
-  #check
+# Step 5 - clean age ---------------------------------------------
 candy_full_data_clean %>% 
-  filter(str_detect(country, "^us|america|states|california|murica|yoo ess")) %>% 
-  distinct(country) %>% 
-  print(n= 24)
+  group_by(age) %>% 
+  summarise(total = n()) %>% 
+  print(n = 20)
+# remove non-numeric (eg. "MY NAME JEFF")
 
+candy_full_data_clean <- candy_full_data_clean %>% 
+  mutate(age = str_extract(age, "[0-9]+")) %>% 
+  mutate(age = as.numeric(age)) %>% # this step removes character strings as NA
+  # oldest living person is 116. People under 3 cannot complete a survey or rate sweets.
+  mutate(age = case_when(
+    age > 116 ~ NA,
+    age <= 3 ~ NA,
+    .default = age
+  ))
 
-# clean age
-  # remove non-numeric (eg. "MY NAME JEFF")
+# Step 6 - Clean candy_type ---------------------------------------------
+candy_full_data_clean %>% 
+  group_by(candy_type) %>% 
+  summarise(total = n()) %>% 
+  print(n = 20)
 
-# clean trick or treating
-
-# clean candy_type
+candy_full_data_clean <- candy_full_data_clean %>%
+  mutate(candy_type = case_when(
+    str_detect(candy_type, "anonymous_brown_globs") ~ "mary_janes",
+    str_detect(candy_type,
+              "abstain|game|comics|dental|hugs|broken|vials|cash|glow_stick")
+    ~ NA,
+    str_detect(candy_type,
+               "chalk|bread|wheat|acetaminophen")
+    ~ NA,
+    .default = candy_type
+  )) %>% 
+  filter(!is.na(candy_type))
+  # distinct(candy_type) %>% 
+  # print(n = 30)
 
 # clean rating
+candy_full_data_clean %>% 
+  group_by(rating) %>% 
+  summarise(total = n())
 
+candy_full_data_clean <- candy_full_data_clean %>% 
+  mutate(rating = str_to_lower(rating),
+         rating_score = case_when(
+           rating == "despair" ~ -1,
+           rating == "meh" ~ 0,
+           rating == "joy" ~ 1
+         ))
 
-
+# Final step - write clean data --------------------------------------------
+write_csv(candy_full_data_clean, "clean_data/candy_data_clean.csv")
