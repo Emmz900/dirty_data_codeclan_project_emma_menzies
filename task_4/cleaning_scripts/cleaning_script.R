@@ -1,5 +1,4 @@
-# Cleaning Script for Halloween Candy
-  # Load libraries and read in data
+# Cleaning Script for Halloween Candy Data
 
 library(tidyverse)
 library(readxl)
@@ -24,7 +23,7 @@ names(candy_2015)
 candy_2015_clean <- candy_2015 %>% 
   select(how_old_are_you:york_peppermint_patties, necco_wafers) %>% 
   mutate("id" = paste0("2015_", row_number()), "year" = 2015, "gender" = "Not gathered",
-         "country" = NA, "state_province" = NA) %>% 
+         "country" = NA) %>% 
   rename("age" = how_old_are_you,
          "trick_or_treating" = 
            are_you_going_actually_going_trick_or_treating_yourself) %>%
@@ -33,18 +32,17 @@ candy_2015_clean <- candy_2015 %>%
                values_to = "rating") %>% 
   filter(!is.na(rating)) %>% # if there is no rating for a particular candy then that row is not of interest
   # ensure columns are in right order
-  select("id", "year", "gender", "country", "state_province",
+  select("id", "year", "gender", "country",
          "age", "trick_or_treating", "candy_type", "rating")
 
   ## Clean 2016 -----------------------
 names(candy_2016)
 
 candy_2016_clean <- candy_2016 %>% 
-  select(are_you_going_actually_going_trick_or_treating_yourself:york_peppermint_patties) %>% 
+  select(are_you_going_actually_going_trick_or_treating_yourself:york_peppermint_patties, -which_state_province_county_do_you_live_in) %>% 
   mutate("id" = paste0("2016_", row_number()),"year" = 2016) %>% 
   rename("gender" = your_gender,
          "country" = which_country_do_you_live_in,
-         "state_province" = which_state_province_county_do_you_live_in,
          "age" = how_old_are_you,
          "trick_or_treating" =
            are_you_going_actually_going_trick_or_treating_yourself
@@ -54,7 +52,7 @@ candy_2016_clean <- candy_2016 %>%
                values_to = "rating") %>% 
   filter(!is.na(rating)) %>% 
   # ensure columns are in right order
-  select("id", "year", "gender", "country", "state_province",
+  select("id", "year", "gender", "country",
          "age", "trick_or_treating", "candy_type", "rating")
 
   ## Clean 2017 --------------------------
@@ -63,11 +61,10 @@ names(candy_2017)
 head(candy_2017)
 
 candy_2017_clean <- candy_2017 %>% 
-  select(q1_going_out:q6_york_peppermint_patties) %>% 
+  select(q1_going_out:q6_york_peppermint_patties, -q5_state_province_county_etc) %>% 
   mutate("id" = paste0("2017_", row_number()),"year" = 2017) %>% 
   rename("gender" = q2_gender,
          "country" = q4_country,
-         "state_province" = q5_state_province_county_etc,
          "age" = q3_age,
          "trick_or_treating" = q1_going_out
          ) %>% 
@@ -78,13 +75,13 @@ candy_2017_clean <- candy_2017 %>%
   # candy types contain question numbers at the start, these are removed
   mutate(candy_type = str_remove(candy_type, "q[0-9]_")) %>% 
   # ensure columns are in right order
-  select("id", "year", "gender", "country", "state_province",
+  select("id", "year", "gender", "country",
          "age", "trick_or_treating", "candy_type", "rating")
 
 # Step 2 - Join ------------------------------------
 
   ## Check the column headings match -------------------
-expected_names <- c("id", "year", "gender", "country", "state_province", "age", "trick_or_treating", "candy_type", "rating")
+expected_names <- c("id", "year", "gender", "country", "age", "trick_or_treating", "candy_type", "rating")
 
 candy_2015_clean %>% 
 verify(names(candy_2015_clean) == expected_names)
@@ -201,10 +198,10 @@ candy_full_data_clean <- candy_full_data_clean %>%
 
 recode_values = list(
   pattern = list("anonymous_brown_globs", "100_grand_bar", "raisin",
-                 "chick_o_sticks", "sourpatch_kids", "sweetums", "m_m", "restaurant",
+                 "chick_o_sticks", "sourpatch_kids", "sweetums", "restaurant",
                  "gummy_bear", "fruit", "tolberone", "boo_berry"),
   new_value = list("mary_janes","100_grand_bar","raisins","chick_o_sticks",
-                   "sourpatch_kids","sweetums","m_and_m_s", "restaurant_candy",
+                   "sourpatch_kids","sweetums", "restaurant_candy",
                    "gummy_bears", "fruit", "toblerone", "boo_berry_cereal")
 )
 
