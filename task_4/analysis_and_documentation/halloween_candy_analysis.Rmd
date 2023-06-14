@@ -8,22 +8,25 @@ output: html_notebook
 
 This analysis looks at halloween survey results from several countries over the years 2015-2017.
 
-The data has undergone several cleaning steps including:
-* Adding a unique identifier for each survey response.
-* Countries have been split into "America", "Canada", "UK", and "Other". 
-  + Those that provided nonsensical country responses have been converted to NA.
-* Age has been limited to between 4 and 116, all other ages have been converted to NA.
-* Non-candy items have been removed.
+The data has undergone several cleaning steps including:  
+
+* Adding a unique identifier for each survey response.  
+* Countries have been split into "America", "Canada", "UK", and "Other".   
+  + Those that provided nonsensical country responses have been converted to NA.  
+* Age has been limited to between 4 and 116, all other ages have been converted to NA.  
+* Non-candy items have been removed.  
+
+
 
 Set up and data format
-```{r, warning=FALSE}
+```{r, eval=FALSE}
 library(tidyverse)
 library(here)
+```
 
+```{r}
 candy_data <- read_csv(here("clean_data/candy_data_clean.csv"))
-
-cat("Column headings:\n")
-cat(names(candy_data), sep = "|")
+cat("Column headings:\n", names(candy_data), sep = "|")
 ```
 
 ## Total number of candy ratings given across the three years.
@@ -68,8 +71,8 @@ candy_data %>%
   slice_max(count) %>% # max number of ratings for each rating
   select(rating, candy_type, count) # to order the results
 ```
-"Any full sized candy bar" is quite vague. 
-This can be removed from the dataset to find a more specific candy with the most joy ratings.
+"Any full sized candy bar" is quite vague.   
+This can be removed from the dataset to find a more specific candy with the most joy ratings.  
 (note: it has not been cleaned from the data as this is still an interesting finding that people love candy bars in general)
 ```{r, warning=FALSE}
 candy_data %>%

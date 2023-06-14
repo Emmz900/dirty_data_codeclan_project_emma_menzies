@@ -99,7 +99,7 @@ candy_full_data <- bind_rows(candy_2015_clean,
   # There are 6 categories:
   # Female, I'd rather not say, Male, Not gathered, Other, and NA
   # Change NAs to "Not gathered"
- candy_full_data <- candy_full_data %>% 
+ candy_full_data_gender <- candy_full_data %>% 
    mutate(gender = coalesce(gender, "Not gathered"))
 
 # Step 4 - Clean `country` -----------------------------------------------
@@ -113,7 +113,7 @@ candy_full_data <- bind_rows(candy_2015_clean,
   ## Numeric Entries ---------
   #(6 are numbers between 30-51, these seem likes ages in the wrong column,
   #one is asking for subscriptions, this should be removed)
-candy_full_data_clean <- candy_full_data %>% 
+candy_full_data_country_numeric <- candy_full_data_gender %>% 
   mutate(
     age = if_else(
       # if an age has been put in country, 
@@ -131,7 +131,7 @@ candy_full_data_clean <- candy_full_data %>%
     ))
 
   ## Clean general format -----------
-candy_full_data_clean <- candy_full_data_clean %>% 
+candy_full_data_country_format <- candy_full_data_country_numeric %>% 
   mutate(country = str_to_lower(country)) %>% 
   mutate(country = str_remove_all(country, "[:punct:]"))
 
@@ -146,7 +146,7 @@ nonsense_pattern <- "one|where|never|gods|tropical|above|not|know|fear|denial|ea
 
   # The analysis is interested in Canada, America, UK, and other. 
   # Therefore any other "real" country should be "other"
-candy_full_data_clean <- candy_full_data_clean %>% 
+candy_full_data_country_clean <- candy_full_data_country_format %>% 
   mutate(country = case_when(
     
     # Find all USA type names
@@ -168,7 +168,7 @@ candy_full_data_clean <- candy_full_data_clean %>%
 # Step 5 - Clean `age` ---------------------------------------------
 
   ## remove non-numeric 
-candy_full_data_clean <- candy_full_data_clean %>% 
+candy_full_data_age_clean <- candy_full_data_country_clean %>% 
   mutate(age = str_extract(age, "[0-9]+")) %>% 
   mutate(age = as.numeric(age)) %>% # this step removes character strings as NA
   # oldest living person is 116. People under 3 cannot complete a survey or rate sweets.
@@ -185,7 +185,7 @@ candy_full_data_clean <- candy_full_data_clean %>%
 non_candy_pattern <-
   "abstain|game|comics|dental|hugs|vial|cash|glow_stick|chalk|bread|wheat|season|acetaminophen|vicodin|chardonnay|lapel"
 
-candy_full_data_clean <- candy_full_data_clean %>% 
+candy_full_data_candy_clean <- candy_full_data_age_clean %>% 
   mutate(candy_type = case_when(
     str_detect(candy_type, non_candy_pattern) ~ NA,
     .default = candy_type)) %>% 
@@ -196,7 +196,7 @@ candy_full_data_clean <- candy_full_data_clean %>%
   # Each pattern will be searched for by str_detect
   # and matching values will be replaced with the corresponding new_value 
 
-recode_values = list(
+recode_values <- list(
   pattern = list("anonymous_brown_globs", "100_grand_bar", "raisin",
                  "chick_o_sticks", "sourpatch_kids", "sweetums", "restaurant",
                  "gummy_bear", "fruit", "tolberone", "boo_berry"),
@@ -206,8 +206,8 @@ recode_values = list(
 )
 
 for (i in 1:length(recode_values[[1]])){
-  candy_full_data_clean <- #this seems like an expensive step, is there another way?
-    mutate(candy_full_data_clean,
+  candy_full_data_candy_clean <- #this seems like an expensive step, is there another way?
+    mutate(candy_full_data_candy_clean,
            candy_type = case_when(
              # check for pattern in `pattern` 
              # replace with the value at the corresponding index in `new_value`
@@ -219,11 +219,7 @@ for (i in 1:length(recode_values[[1]])){
 
 
 # Step 7 - Clean `rating` and add `rating_score` column ----------------
-candy_full_data_clean %>% 
-  group_by(rating) %>% 
-  summarise(total = n())
-
-candy_full_data_clean <- candy_full_data_clean %>% 
+candy_full_data_clean <- candy_full_data_candy_clean %>% 
   mutate(rating = str_to_lower(rating),
          rating_score = case_when(
            rating == "despair" ~ -1,
