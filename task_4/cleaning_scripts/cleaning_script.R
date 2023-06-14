@@ -93,48 +93,45 @@ candy_2016_clean %>%
 candy_2017_clean %>% 
   verify(names(candy_2017_clean) == expected_names)
 
-  ## Check contents and types
-glimpse(candy_2015_clean)
-glimpse(candy_2016_clean)
-glimpse(candy_2017_clean)
-
   ## Join the rows together from all datasets -------------------
 candy_full_data <- bind_rows(candy_2015_clean,
                              candy_2016_clean,
                              candy_2017_clean)
 
 # Step 3 - Check the Join has Worked ----------------------------------------
-candy_full_data %>% 
-  summarise(across(.cols = everything(), .fns = ~sum(is.na(.x))))
-glimpse(candy_full_data)
-tail(candy_full_data)
-
-  ## Check year ------------
-candy_full_data %>% 
-  group_by(year) %>% 
-  summarise(total = n())
-
-  ## Check gender ---------------
-candy_full_data %>% 
-  group_by(gender) %>% 
-  summarise(total = n())
-
-    # There are 6 categories: Female, I'd rather not say, Male, Not gathered, Other, and NA
-    # Change NAs to "Not gathered"
-candy_full_data <- candy_full_data %>% 
-  mutate(gender = coalesce(gender, "Not gathered"))
-
-  ## Check trick_or_treating --------------------
-candy_full_data %>% 
-  group_by(trick_or_treating) %>% 
-  summarise(total = n())
+# candy_full_data %>% 
+#   summarise(across(.cols = everything(), .fns = ~sum(is.na(.x))))
+# glimpse(candy_full_data)
+# tail(candy_full_data)
+# 
+   ## Check year ------------
+# candy_full_data %>% 
+#   group_by(year) %>% 
+#   summarise(total = n())
+# 
+   ## Check gender ---------------
+# candy_full_data %>% 
+#   group_by(gender) %>% 
+#   summarise(total = n())
+# 
+#     # There are 6 categories: Female, I'd rather not say, Male, Not gathered, Other, and NA
+#     # Change NAs to "Not gathered"
+ candy_full_data <- candy_full_data %>% 
+   mutate(gender = coalesce(gender, "Not gathered"))
+# 
+   ## Check trick_or_treating --------------------
+# candy_full_data %>% 
+#   group_by(trick_or_treating) %>% 
+#   summarise(total = n())
   # There are three categories: yes, no, NA. No changes needed.
 
 # Step 4 - Clean Country -----------------------------------------------
-candy_full_data %>% 
-  group_by(country) %>% 
-  summarise(total = n()) %>% 
-  print(n = 20)
+# Key issues the section will fix:
+  # Numeric entries
+  # Varied cases and punctuation
+  # Many variations of country names
+  # Non-existent countries
+  # Countries which we are not interested in for the analysis
 
   ## Numeric Entries ---------
   #(6 are numbers between 30-51, these seem likes ages in the wrong column,
@@ -191,17 +188,12 @@ candy_full_data_clean <- candy_full_data_clean %>%
     .default = "other"
   ))
 
-# Step 5 - clean age ---------------------------------------------
-candy_full_data_clean %>% 
-  group_by(age) %>% 
-  summarise(total = n()) %>% 
-  print(n = 20)
+# Step 5 - Clean Age ---------------------------------------------
 
   ## remove non-numeric 
 candy_full_data_clean <- candy_full_data_clean %>% 
   mutate(age = str_extract(age, "[0-9]+")) %>% 
   mutate(age = as.numeric(age)) %>% # this step removes character strings as NA
-  
   # oldest living person is 116. People under 3 cannot complete a survey or rate sweets.
   mutate(age = case_when(
     age > 116 ~ NA,
@@ -210,16 +202,23 @@ candy_full_data_clean <- candy_full_data_clean %>%
   ))
 
 # Step 6 - Clean candy_type ---------------------------------------------
-candy_full_data_clean %>% 
-  group_by(candy_type) %>% 
-  summarise(total = n()) %>% 
-  print(n = 20)
 
-  # Patterns which are not candies and should be removed
-non_candy_pattern <- "abstain|game|comics|dental|hugs|vial|cash|glow_stick|chalk|bread|wheat|season|acetaminophen|vicodin|chardonnay|lapel"
+  ## Remove all non-candy rows ------------
 
-  # Recoding values. Each pattern will be searched for by str_detect
+non_candy_pattern <-
+  "abstain|game|comics|dental|hugs|vial|cash|glow_stick|chalk|bread|wheat|season|acetaminophen|vicodin|chardonnay|lapel"
+
+candy_full_data_clean <- candy_full_data_clean %>% 
+  mutate(candy_type = case_when(
+    str_detect(candy_type, non_candy_pattern) ~ NA,
+    .default = candy_type)) %>% 
+  filter(!is.na(candy_type))
+
+  ## Recoding -------------------
+
+  # Each pattern will be searched for by str_detect
   # and matching values will be replaced with the corresponding new_value 
+
 recode_values = list(
   pattern = list("anonymous_brown_globs", "100_grand_bar", "raisin",
                  "chick_o_sticks", "sourpatch_kids", "sweetums", "m_m", "restaurant",
@@ -229,23 +228,20 @@ recode_values = list(
                    "gummy_bears", "fruit", "toblerone", "boo_berry_cereal")
 )
 
-  ## Cleaning step
-  # 
 for (i in 1:length(recode_values[[1]])){
-  candy_full_data_clean <- #this seems like a time consuming step, is there another way
+  candy_full_data_clean <- #this seems like an expensive step, is there another way?
     mutate(candy_full_data_clean,
            candy_type = case_when(
-             str_detect(candy_type, non_candy_pattern) ~ NA,
+             # check for pattern in `pattern` 
+             # replace with the value at the corresponding index in `new_value`
              str_detect(candy_type, recode_values[[1]][[i]]) 
              ~ recode_values[[2]][[i]],
              .default = candy_type
            ))
 }
 
-candy_full_data_clean <- candy_full_data_clean %>% 
-  filter(!is.na(candy_type))
 
-# clean rating
+# Step 7 - Clean Rating and Add Score Column ----------------
 candy_full_data_clean %>% 
   group_by(rating) %>% 
   summarise(total = n())
