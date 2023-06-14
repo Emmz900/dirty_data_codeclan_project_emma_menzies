@@ -162,17 +162,16 @@ candy_full_data_clean <- candy_full_data_clean %>%
   mutate(country = str_remove_all(country, "[:punct:]"))
 
   ## Fix variations in countries ------------
-america_pattern <- "^us|u[a-z]* s|[eu]+r[i]*ca|murrika|yoo ess|pitts|carolina|california|jersey|trump|york"
+america_pattern <- "^us|u[a-z]* s|usa|[eu]+r[i]*ca|murrika|yoo ess|pitts|carolina|california|jersey|trump|york"
 
 uk_pattern <- "^uk|^u[a-z]* k[a-z]*|en[gd]land|scotland"
 
-nonesense_pattern <- "one|where|never|gods|tropical|above|not|know|fear|denial|earth|insanity|atlantis|narnia|a|can[ae]*" #these people could be from US/UK/Canada so will go in NA rather than "Other"
+nonsense_pattern <- "one|where|never|gods|tropical|above|not|know|fear|denial|earth|insanity|atlantis|narnia|^a$|^can[ae]*$|^eua$" 
+  # These people could be from US/UK/Canada so will go in NA rather than "other"
+  # Cascadia covers US and Canada, although it is not a recognised country it is an established region hence will go into "other" rather than NA/America/Canada
 
-candy_full_data_clean %>% 
-  filter(str_detect(country, uk_pattern)) %>% 
-  distinct(country) %>% 
-  print(n = 30)
-
+  # The analysis is interested in Canada, America, UK, and other. 
+  # Therefore any other "real" country should be "other"
 candy_full_data_clean <- candy_full_data_clean %>% 
   mutate(country = case_when(
     
@@ -185,37 +184,24 @@ candy_full_data_clean <- candy_full_data_clean %>%
     # Find all UK names
     str_detect(country, uk_pattern) ~ "uk",
     
-      #COULD PUT ALL OF THESE IN .default = "other" IF I add correct versions above
-    #Remove nonsensical names
-    str_detect(country,
-               "one|where|never|gods|^eua|tropical|above|not|know|fear") 
-    ~ NA,
-    str_detect(country,
-               "denial|earth|insanity|atlantis|narnia") 
-    ~ NA,
-    country %in% c("a", "can", "canae") ~ NA,
+    # Remove nonsensical names
+    str_detect(country, nonsense_pattern) ~ NA,
     
-    # spain
-    str_detect(country, "espa") ~ "spain",
-    # cascadia 
-    #(I am accepting this as a valid option although it is not technically a country at the moment)
-    str_detect(country, "cascadia") ~ "cascadia",
-    # netherlands
-    str_detect(country, "netherlands") ~ "netherlands",
-    
-    .default = country
-  )) 
+    # All other countries in other category
+    .default = "other"
+  ))
 
 # Step 5 - clean age ---------------------------------------------
 candy_full_data_clean %>% 
   group_by(age) %>% 
   summarise(total = n()) %>% 
   print(n = 20)
-# remove non-numeric (eg. "MY NAME JEFF")
 
+  ## remove non-numeric 
 candy_full_data_clean <- candy_full_data_clean %>% 
   mutate(age = str_extract(age, "[0-9]+")) %>% 
   mutate(age = as.numeric(age)) %>% # this step removes character strings as NA
+  
   # oldest living person is 116. People under 3 cannot complete a survey or rate sweets.
   mutate(age = case_when(
     age > 116 ~ NA,
@@ -229,25 +215,59 @@ candy_full_data_clean %>%
   summarise(total = n()) %>% 
   print(n = 20)
 
+non_candy_pattern <- "abstain|game|comics|dental|hugs|vial|cash|glow_stick|chalk|bread|wheat|season|acetaminophen|vicodin|chardonnay|lapel"
+
+recode_values = list(
+  pattern = list("anonymous_brown_globs", "100_grand_bar", "raisin",
+                 "chick_o_sticks", "sourpatch_kids", "sweetums", "m_m", "restaurant",
+                 "gummy_bear", "fruit"),
+  new_value = list("mary_janes","100_grand_bar","raisins","chick_o_sticks",
+                   "sourpatch_kids","sweetums","m_and_m_s", "restaurant_candy",
+                   "gummy_bears", "fruit")
+)
+
+for (i in 1:length(recode_values[[1]])){
+  candy_full_data_clean <-
+    mutate(candy_full_data_clean,
+           candy_type = case_when(
+             str_detect(candy_type, non_candy_pattern) ~ NA,
+             str_detect(candy_type, recode_values[[1]][[i]]) 
+             ~ recode_values[[2]][[i]],
+             .default = candy_type
+           ))
+}
+
+candy_full_data_clean %>% 
+  distinct(candy_type) %>% 
+  print(n = 20)
+# clean_columns <- function(dataframe, column, list_of_cleaning){
+#   for (i in 1:length(list_of_cleaning[[1]])){
+#     candy_test <- mutate(dataframe,
+#            column = case_when(
+#              str_detect(column, list_of_cleaning[[1]][[i]]) 
+#              ~ list_of_cleaning[[2]][[i]],
+#              .default = column
+#            ))
+#   }
+# }
+
+clean_columns(candy_full_data_clean, candy_type, recode_values)
+
 candy_full_data_clean <- candy_full_data_clean %>%
-  mutate(candy_type = case_when(
-    str_detect(candy_type, "anonymous_brown_globs") ~ "mary_janes",
-    str_detect(candy_type,
-              "abstain|game|comics|dental|hugs|broken|vials|cash|glow_stick")
-    ~ NA,
-    str_detect(candy_type,
-               "chalk|bread|wheat|season|acetaminophen|vicodin")
-    ~ NA,
-    str_detect(candy_type, "100_grand_bar") ~ "100_grand_bar",
-    str_detect(candy_type, "raisin") ~ "raisins",
-    str_detect(candy_type, "chick_o_sticks") ~ "chick_o_sticks",
-    str_detect(candy_type, "sourpatch_kids") ~ "sourpatch_kids",
-    str_detect(candy_type, "sweetums") ~ "sweetums",
-    .default = candy_type
-  )) %>% 
+  # mutate(candy_type = case_when(
+  #   str_detect(candy_type, non_candy_pattern) ~ NA,
+  #   str_detect(candy_type, "anonymous_brown_globs") ~ "mary_janes",
+  #   str_detect(candy_type, "100_grand_bar") ~ "100_grand_bar",
+  #   str_detect(candy_type, "raisin") ~ "raisins",
+  #   str_detect(candy_type, "chick_o_sticks") ~ "chick_o_sticks",
+  #   str_detect(candy_type, "sourpatch_kids") ~ "sourpatch_kids",
+  #   str_detect(candy_type, "sweetums") ~ "sweetums",
+  #   str_detect(candy_type, "m_m") ~ "m_and_m_s",
+  #   str_detect(candy_type, "restaurant") ~ "restaurant_candy",
+  #   .default = candy_type
+  # )) %>% 
+  # Remove all non-candy (which has been recoded to NA)
   filter(!is.na(candy_type))
-  # distinct(candy_type) %>% 
-  # print(n = 30)
 
 # clean rating
 candy_full_data_clean %>% 
