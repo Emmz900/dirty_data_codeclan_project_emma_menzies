@@ -215,19 +215,24 @@ candy_full_data_clean %>%
   summarise(total = n()) %>% 
   print(n = 20)
 
+  # Patterns which are not candies and should be removed
 non_candy_pattern <- "abstain|game|comics|dental|hugs|vial|cash|glow_stick|chalk|bread|wheat|season|acetaminophen|vicodin|chardonnay|lapel"
 
+  # Recoding values. Each pattern will be searched for by str_detect
+  # and matching values will be replaced with the corresponding new_value 
 recode_values = list(
   pattern = list("anonymous_brown_globs", "100_grand_bar", "raisin",
                  "chick_o_sticks", "sourpatch_kids", "sweetums", "m_m", "restaurant",
-                 "gummy_bear", "fruit"),
+                 "gummy_bear", "fruit", "tolberone", "boo_berry"),
   new_value = list("mary_janes","100_grand_bar","raisins","chick_o_sticks",
                    "sourpatch_kids","sweetums","m_and_m_s", "restaurant_candy",
-                   "gummy_bears", "fruit")
+                   "gummy_bears", "fruit", "toblerone", "boo_berry_cereal")
 )
 
+  ## Cleaning step
+  # 
 for (i in 1:length(recode_values[[1]])){
-  candy_full_data_clean <-
+  candy_full_data_clean <- #this seems like a time consuming step, is there another way
     mutate(candy_full_data_clean,
            candy_type = case_when(
              str_detect(candy_type, non_candy_pattern) ~ NA,
@@ -237,36 +242,7 @@ for (i in 1:length(recode_values[[1]])){
            ))
 }
 
-candy_full_data_clean %>% 
-  distinct(candy_type) %>% 
-  print(n = 20)
-# clean_columns <- function(dataframe, column, list_of_cleaning){
-#   for (i in 1:length(list_of_cleaning[[1]])){
-#     candy_test <- mutate(dataframe,
-#            column = case_when(
-#              str_detect(column, list_of_cleaning[[1]][[i]]) 
-#              ~ list_of_cleaning[[2]][[i]],
-#              .default = column
-#            ))
-#   }
-# }
-
-clean_columns(candy_full_data_clean, candy_type, recode_values)
-
-candy_full_data_clean <- candy_full_data_clean %>%
-  # mutate(candy_type = case_when(
-  #   str_detect(candy_type, non_candy_pattern) ~ NA,
-  #   str_detect(candy_type, "anonymous_brown_globs") ~ "mary_janes",
-  #   str_detect(candy_type, "100_grand_bar") ~ "100_grand_bar",
-  #   str_detect(candy_type, "raisin") ~ "raisins",
-  #   str_detect(candy_type, "chick_o_sticks") ~ "chick_o_sticks",
-  #   str_detect(candy_type, "sourpatch_kids") ~ "sourpatch_kids",
-  #   str_detect(candy_type, "sweetums") ~ "sweetums",
-  #   str_detect(candy_type, "m_m") ~ "m_and_m_s",
-  #   str_detect(candy_type, "restaurant") ~ "restaurant_candy",
-  #   .default = candy_type
-  # )) %>% 
-  # Remove all non-candy (which has been recoded to NA)
+candy_full_data_clean <- candy_full_data_clean %>% 
   filter(!is.na(candy_type))
 
 # clean rating
