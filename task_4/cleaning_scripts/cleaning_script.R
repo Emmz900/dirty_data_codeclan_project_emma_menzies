@@ -98,34 +98,14 @@ candy_full_data <- bind_rows(candy_2015_clean,
                              candy_2016_clean,
                              candy_2017_clean)
 
-# Step 3 - Check the Join has Worked ----------------------------------------
-# candy_full_data %>% 
-#   summarise(across(.cols = everything(), .fns = ~sum(is.na(.x))))
-# glimpse(candy_full_data)
-# tail(candy_full_data)
-# 
-   ## Check year ------------
-# candy_full_data %>% 
-#   group_by(year) %>% 
-#   summarise(total = n())
-# 
-   ## Check gender ---------------
-# candy_full_data %>% 
-#   group_by(gender) %>% 
-#   summarise(total = n())
-# 
-#     # There are 6 categories: Female, I'd rather not say, Male, Not gathered, Other, and NA
-#     # Change NAs to "Not gathered"
+# Step 3 - Clean `gender` ----------------------------------------
+  # There are 6 categories:
+  # Female, I'd rather not say, Male, Not gathered, Other, and NA
+  # Change NAs to "Not gathered"
  candy_full_data <- candy_full_data %>% 
    mutate(gender = coalesce(gender, "Not gathered"))
-# 
-   ## Check trick_or_treating --------------------
-# candy_full_data %>% 
-#   group_by(trick_or_treating) %>% 
-#   summarise(total = n())
-  # There are three categories: yes, no, NA. No changes needed.
 
-# Step 4 - Clean Country -----------------------------------------------
+# Step 4 - Clean `country` -----------------------------------------------
 # Key issues the section will fix:
   # Numeric entries
   # Varied cases and punctuation
@@ -188,7 +168,7 @@ candy_full_data_clean <- candy_full_data_clean %>%
     .default = "other"
   ))
 
-# Step 5 - Clean Age ---------------------------------------------
+# Step 5 - Clean `age` ---------------------------------------------
 
   ## remove non-numeric 
 candy_full_data_clean <- candy_full_data_clean %>% 
@@ -201,7 +181,7 @@ candy_full_data_clean <- candy_full_data_clean %>%
     .default = age
   ))
 
-# Step 6 - Clean candy_type ---------------------------------------------
+# Step 6 - Clean `candy_type` ---------------------------------------------
 
   ## Remove all non-candy rows ------------
 
@@ -241,7 +221,7 @@ for (i in 1:length(recode_values[[1]])){
 }
 
 
-# Step 7 - Clean Rating and Add Score Column ----------------
+# Step 7 - Clean `rating` and add `rating_score` column ----------------
 candy_full_data_clean %>% 
   group_by(rating) %>% 
   summarise(total = n())
@@ -254,5 +234,5 @@ candy_full_data_clean <- candy_full_data_clean %>%
            rating == "joy" ~ 1
          ))
 
-# Final step - write clean data --------------------------------------------
+# Final step - Write Clean Data --------------------------------------------
 write_csv(candy_full_data_clean, "clean_data/candy_data_clean.csv")

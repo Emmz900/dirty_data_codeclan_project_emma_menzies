@@ -5,6 +5,21 @@ output: html_notebook
 
 ## Introduction
 
+This analysis looks at survey results from several countries over the years 2015-2017.
+
+The data is in the form:
+ id | year | gender | country | state_province | age | trick_or_treating | candy_type | rating
+ ---|------|--------|---------|----------------|-----|-------------------|------------|-------
+ 
+The data has undergone several cleaning steps including:
+* Adding a unique identifier for each survey response
+* Removing all non-candy data.
+* Countries have been split into "America", "Canada", "UK", and "Other". 
+  * Those that provided nonsensical country responses have been converted to NA.
+* Age has been limited to between 3 and 116, all other ages have been converted to NA.
+
+
+
 
 
 ## Set up
