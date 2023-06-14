@@ -1,3 +1,6 @@
+# Cleaning Script for Halloween Candy
+  # Load libraries and read in data
+
 library(tidyverse)
 library(readxl)
 library(janitor)
@@ -13,9 +16,9 @@ candy_2017 <- clean_names(candy_2017)
 
 # Step 1 - Clean to Join -------------------------------------------------------
 # Clean each dataset to look like:
-# year | gender | country | state_province | age | trick_or_treating | candy_type | rating
+# id | year | gender | country | state_province | age | trick_or_treating | candy_type | rating
 
-# Clean 2015
+  ## Clean 2015 -------------------
 names(candy_2015)
 
 candy_2015_clean <- candy_2015 %>% 
@@ -25,16 +28,15 @@ candy_2015_clean <- candy_2015 %>%
   rename("age" = how_old_are_you,
          "trick_or_treating" = 
            are_you_going_actually_going_trick_or_treating_yourself) %>%
-  relocate(age, .after = state_province) %>% 
-  relocate(trick_or_treating, .after = age) %>% 
   pivot_longer(butterfinger:necco_wafers,
                names_to = "candy_type",
                values_to = "rating") %>% 
-  filter(!is.na(rating)) %>% 
+  filter(!is.na(rating)) %>% # if there is no rating for a particular candy then that row is not of interest
+  # ensure columns are in right order
   select("id", "year", "gender", "country", "state_province",
          "age", "trick_or_treating", "candy_type", "rating")
 
-# Clean 2016
+  ## Clean 2016 -----------------------
 names(candy_2016)
 
 candy_2016_clean <- candy_2016 %>% 
@@ -55,7 +57,7 @@ candy_2016_clean <- candy_2016 %>%
   select("id", "year", "gender", "country", "state_province",
          "age", "trick_or_treating", "candy_type", "rating")
 
-# Clean 2017  
+  ## Clean 2017 --------------------------
 
 names(candy_2017)
 head(candy_2017)
@@ -81,7 +83,7 @@ candy_2017_clean <- candy_2017 %>%
 
 # Step 2 - Join ------------------------------------
 
-# Check the column headings match
+  ## Check the column headings match -------------------
 expected_names <- c("id", "year", "gender", "country", "state_province", "age", "trick_or_treating", "candy_type", "rating")
 
 candy_2015_clean %>% 
@@ -91,35 +93,42 @@ candy_2016_clean %>%
 candy_2017_clean %>% 
   verify(names(candy_2017_clean) == expected_names)
 
-#check contents and types
+  ## Check contents and types
 glimpse(candy_2015_clean)
 glimpse(candy_2016_clean)
 glimpse(candy_2017_clean)
 
-# join the rows together from all datasets
-candy_full_data <- candy_2015_clean %>% 
-  bind_rows(candy_2016_clean, candy_2017_clean)
+  ## Join the rows together from all datasets -------------------
+candy_full_data <- bind_rows(candy_2015_clean,
+                             candy_2016_clean,
+                             candy_2017_clean)
 
-# Step 3 - Check the join has worked ----------------------------------------
+# Step 3 - Check the Join has Worked ----------------------------------------
 candy_full_data %>% 
   summarise(across(.cols = everything(), .fns = ~sum(is.na(.x))))
 glimpse(candy_full_data)
 tail(candy_full_data)
 
-# check year
+  ## Check year ------------
 candy_full_data %>% 
   group_by(year) %>% 
   summarise(total = n())
 
-# check gender
+  ## Check gender ---------------
 candy_full_data %>% 
   group_by(gender) %>% 
   summarise(total = n())
 
-# check trick or treating
+    # There are 6 categories: Female, I'd rather not say, Male, Not gathered, Other, and NA
+    # Change NAs to "Not gathered"
+candy_full_data <- candy_full_data %>% 
+  mutate(gender = coalesce(gender, "Not gathered"))
+
+  ## Check trick_or_treating --------------------
 candy_full_data %>% 
   group_by(trick_or_treating) %>% 
   summarise(total = n())
+  # There are three categories: yes, no, NA. No changes needed.
 
 # Step 4 - Clean Country -----------------------------------------------
 candy_full_data %>% 
@@ -127,45 +136,54 @@ candy_full_data %>%
   summarise(total = n()) %>% 
   print(n = 20)
 
-  # numeric entries:
+  ## Numeric Entries ---------
   #(6 are numbers between 30-51, these seem likes ages in the wrong column,
   #one is asking for subscriptions, this should be removed)
 candy_full_data_clean <- candy_full_data %>% 
   mutate(
     age = if_else(
-      # an age has been put in country, and no age given, move it back to age
-      str_detect(country, "[0-9]") & is.na(age) & country != "subscribe to dm4uz3 on youtube", 
+      # if an age has been put in country, 
+      # and no age given, move it back to age.
+      str_detect(country, "[0-9]") &
+        is.na(age) &
+        country != "subscribe to dm4uz3 on youtube", 
       country,
       age
     ),
     country = if_else(
       str_detect(country, "[0-9]"),
-      NA, # this should run when country is numeric
+      NA, # this should run when country has numeric values
       country
     ))
 
-  # Clean general format
+  ## Clean general format -----------
 candy_full_data_clean <- candy_full_data_clean %>% 
   mutate(country = str_to_lower(country)) %>% 
   mutate(country = str_remove_all(country, "[:punct:]"))
 
-  # Fix variations in countries
+  ## Fix variations in countries ------------
+america_pattern <- "^us|u[a-z]* s|[eu]+r[i]*ca|murrika|yoo ess|pitts|carolina|california|jersey|trump|york"
+
+uk_pattern <- "^uk|^u[a-z]* k[a-z]*|en[gd]land|scotland"
+
+nonesense_pattern <- "one|where|never|gods|tropical|above|not|know|fear|denial|earth|insanity|atlantis|narnia|a|can[ae]*" #these people could be from US/UK/Canada so will go in NA rather than "Other"
+
+candy_full_data_clean %>% 
+  filter(str_detect(country, uk_pattern)) %>% 
+  distinct(country) %>% 
+  print(n = 30)
+
 candy_full_data_clean <- candy_full_data_clean %>% 
-  mutate(country = 
-           case_when(
+  mutate(country = case_when(
+    
     # Find all USA type names
-    str_detect(country,
-               "^us|erica|urica|states|amerca|yoo ess|united s|u s|murrika")
-    ~ "america",
-    str_detect(country,
-               "pitts|carolina|california|jersey|trump|york")
-    ~ "america",
+    str_detect(country, america_pattern) ~ "america",
     
     # canada
     str_detect(country, "canada") ~ "canada",
     
     # Find all UK names
-    str_detect(country, "united kin|england|scotland|endland") ~ "uk",
+    str_detect(country, uk_pattern) ~ "uk",
     
       #COULD PUT ALL OF THESE IN .default = "other" IF I add correct versions above
     #Remove nonsensical names

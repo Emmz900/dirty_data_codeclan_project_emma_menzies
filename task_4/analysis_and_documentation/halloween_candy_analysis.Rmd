@@ -3,9 +3,9 @@ title: "Halloween Candy Analysis"
 output: html_notebook
 ---
 
-# Hallowe'en Candy Analysis
-
 ## Introduction
+
+
 
 ## Set up
 ```{r}
