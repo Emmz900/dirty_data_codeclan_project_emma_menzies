@@ -39,11 +39,13 @@ seabirds_birds <- seabirds_birds %>%
 
 # simplify scientific name
 seabirds_birds <- seabirds_birds %>% 
-  mutate(species_scientific_name = str_extract(seabirds_birds$species_scientific_name, "[:alpha:]+ [:alpha:]*"))
+  mutate(species_scientific_name =
+           str_extract(species_scientific_name, "[:alpha:]+ [:alpha:]*"))
 
 
 # Join data
-seabirds_joined <- full_join(seabirds_ships, seabirds_birds, by = "record_id") %>% 
+seabirds_joined <-
+  full_join(seabirds_ships, seabirds_birds, by = "record_id") %>% 
   rename(ship_record = record.x, bird_record = record.y)
 
 seabirds_joined %>% 
@@ -53,7 +55,7 @@ seabirds_joined %>%
 # this record is therefore not useful to us and can be removed.
 # There are also records which state no birds were recorded, these will be removed.
   
-seabirds_joined <- seabirds_joined %>% 
+seabirds_joined_clean <- seabirds_joined %>% 
   # Remove missing species or no birds records
   filter(!is.na(species_scientific_name),
          species_common_name != "[NO BIRDS RECORDED]") %>% 
@@ -86,4 +88,4 @@ seabirds_joined <- seabirds_joined %>%
 
   
 # Write csv
-write_csv(seabirds_joined, "clean_data/seabirds_clean.csv")
+write_csv(seabirds_joined_clean, "clean_data/seabirds_clean.csv")
