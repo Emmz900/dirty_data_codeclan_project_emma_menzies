@@ -205,19 +205,6 @@ recode_values <- list(
                    "gummy_bears", "fruit", "toblerone", "boo_berry_cereal")
 )
 
-#NOT FUNCTIONAL
-candy_full_data_candy_tidy <- candy_full_data_candy_clean %>% 
-  mutate(
-    for (i in 1:length(recode_values[[1]])){
-      candy_type =
-        case_when(
-          str_detect(candy_type, recode_values[[1]][[i]]) 
-          ~ recode_values[[2]][[i]],
-          .default = candy_type
-        )
-    }    
-  )
-
   # check for pattern in `pattern` 
   # replace with the value at the corresponding index in `new_value`
 for (i in 1:length(recode_values[[1]])){

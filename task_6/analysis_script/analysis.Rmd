@@ -1,5 +1,6 @@
 ---
-title: "R Notebook"
+title: "Dog Data Analysis"
+author: "Emma Menzies"
 output: html_notebook
 ---
 
@@ -15,6 +16,7 @@ dog_data
 ```
 
 ## The client only counts a valid email address as one ending in ‘.com’. How many survey results have a valid email address.
+Since some rows have been split into multiple rows with the same individuals data count only distinct ids.
 ```{r}
 dog_data %>% 
   filter(str_detect(email, ".com$")) %>% 

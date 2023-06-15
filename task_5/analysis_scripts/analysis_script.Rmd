@@ -1,0 +1,28 @@
+---
+title: "Task 5 - Right Wing Authoritarianism"
+output: html_notebook
+---
+```{r}
+library(tidyverse)
+library(here)
+
+
+```
+
+## What’s the average RWA score for each gender?
+
+## What’s the average RWA score for left handed people vs. right handed people.
+
+## What’s the average family size for each type of childhood?
+
+## What’s the average time to take the test for each education level?
+
+## Create a plot of results of question 4.
+
+## What’s the average RWA score for people aged
+
+* Under 18
+* 18 to 25
+* 26 to 40
+* 41 to 60
+* Over 60
