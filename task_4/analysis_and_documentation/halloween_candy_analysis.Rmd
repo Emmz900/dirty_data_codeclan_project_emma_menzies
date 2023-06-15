@@ -25,13 +25,13 @@ output:
 **Data**  
 
 This analysis looks at halloween survey results from several countries over the years 2015-2017.  
-Data on individuals age, gender, and country were collected along with whether they are going trick or treating that year.  
+Data on individual's age, gender, and country were collected along with whether they are going trick-or-treating that year.  
 Individuals were also asked to rate many different candy types on a scale of joy > meh > despair.  
 A range of other questions were asked which have been removed from the dataset.  
 
 **Assumptions**  
 
-* Where country was "Trumpistan" the country is America    
+* Where country was "Trumpistan" the country is US    
 * Where country was "Cascadia" this is in "Other" as it is a real area while not being a country     
 * For gender "I'd rather not say", "Other", and "Not gathered" all have different implications and have been treated separately.   
 * The first numbers in the age column is the person's age   
@@ -53,7 +53,7 @@ A range of other questions were asked which have been removed from the dataset.
   
 * Where ages were put in the country column (and nothing given in age), the values were moved over to age.  
 
-* Countries were then assigned to "America", "Canada", "UK", and "Other",  
+* Countries were then assigned to "US", "Canada", "UK", and "Other",  
   after converting to lower case and removing punctuation    
   + ...`mutate(country = str_to_lower(country)) %>% `  
     `mutate(country = str_remove_all(country, "[:punct:]"))`...   
@@ -165,7 +165,8 @@ cat("The total despair ratings for starbursts were ", format(total_despair, big.
 ```
 [Contents]
 
-## Numeric Rating system {#Function}
+## Funtion {#Function}
+Numeric Rating System:  
 Joy = 1  
 Meh = 0  
 Despair = -1  

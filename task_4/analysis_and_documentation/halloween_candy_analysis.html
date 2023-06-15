@@ -1648,15 +1648,15 @@ display: none;
 <p><strong>Data</strong></p>
 <p>This analysis looks at halloween survey results from several
 countries over the years 2015-2017.<br />
-Data on individuals age, gender, and country were collected along with
-whether they are going trick or treating that year.<br />
+Data on individual’s age, gender, and country were collected along with
+whether they are going trick-or-treating that year.<br />
 Individuals were also asked to rate many different candy types on a
 scale of joy &gt; meh &gt; despair.<br />
 A range of other questions were asked which have been removed from the
 dataset.</p>
 <p><strong>Assumptions</strong></p>
 <ul>
-<li>Where country was “Trumpistan” the country is America<br />
+<li>Where country was “Trumpistan” the country is US<br />
 </li>
 <li>Where country was “Cascadia” this is in “Other” as it is a real area
 while not being a country<br />
@@ -1689,7 +1689,7 @@ rating | rating_score<br />
 </ul></li>
 <li><p>Where ages were put in the country column (and nothing given in
 age), the values were moved over to age.</p></li>
-<li><p>Countries were then assigned to “America”, “Canada”, “UK”, and
+<li><p>Countries were then assigned to “US”, “Canada”, “UK”, and
 “Other”,<br />
 after converting to lower case and removing punctuation</p>
 <ul>
@@ -1835,8 +1835,9 @@ cat(&quot;The total despair ratings for starbursts were &quot;, format(total_des
 <p><a href="#contents">Contents</a></p>
 </div>
 <div id="Function" class="section level2">
-<h2>Numeric Rating system</h2>
-<p>Joy = 1<br />
+<h2>Funtion</h2>
+<p>Numeric Rating System:<br />
+Joy = 1<br />
 Meh = 0<br />
 Despair = -1</p>
 <p>Function to find the most popular candy type within each group (eg.

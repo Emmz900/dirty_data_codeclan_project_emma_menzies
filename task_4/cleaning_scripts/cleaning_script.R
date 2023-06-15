@@ -144,13 +144,13 @@ nonsense_pattern <- "one|where|never|gods|tropical|above|not|know|fear|denial|ea
   # These people could be from US/UK/Canada so will go in NA rather than "other"
   # Cascadia covers US and Canada, although it is not a recognised country it is an established region hence will go into "other" rather than NA/America/Canada
 
-  # The analysis is interested in Canada, America, UK, and other. 
+  # The analysis is interested in Canada, US, UK, and other. 
   # Therefore any other "real" country should be "other"
 candy_full_data_country_clean <- candy_full_data_country_format %>% 
   mutate(country = case_when(
     
     # Find all USA type names
-    str_detect(country, america_pattern) ~ "america",
+    str_detect(country, america_pattern) ~ "us",
     
     # canada
     str_detect(country, "canada") ~ "canada",
@@ -189,7 +189,7 @@ candy_full_data_candy_clean <- candy_full_data_age_clean %>%
   mutate(candy_type = case_when(
     str_detect(candy_type, non_candy_pattern) ~ NA,
     .default = candy_type)) %>% 
-  filter(!is.na(candy_type))
+  filter(!is.na(candy_type));;';'l
 
   ## Recoding -------------------
 
