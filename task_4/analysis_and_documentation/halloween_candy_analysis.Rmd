@@ -1,43 +1,101 @@
 ---
-title: "Halloween Candy Analysis"
+title: "Halloween Candy Analysis 🍬"
 author: "Emma Menzies"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
+
+### Contents  
+
+1. [Introduction and set up]  
+2. [Question 1](#Question_1)
+3. [Question 2](#Question_2)
+4. [Question 3](#Question_3)
+5. [Question 4](#Question_4)
+6. [Question 5](#Question_5)
+7. [Function](#Function)
+8. [Question 6](#Question_6)
+9. [Question 7](#Question_7)
+10. [Question 8](#Question_8)
+11. [Extra](#Extra)
 
 ## Introduction and set up
 
-This analysis looks at halloween survey results from several countries over the years 2015-2017.
+**Data**  
 
-The data has undergone several cleaning steps including:  
+This analysis looks at halloween survey results from several countries over the years 2015-2017.  
+Data on individuals age, gender, and country were collected along with whether they are going trick or treating that year.  
+Individuals were also asked to rate many different candy types on a scale of joy > meh > despair.  
+A range of other questions were asked which have been removed from the dataset.  
 
-* Adding a unique identifier for each survey response.  
-* Countries have been split into "America", "Canada", "UK", and "Other".   
-  + Those that provided nonsensical country responses have been converted to NA.  
-* Age has been limited to between 4 and 116, all other ages have been converted to NA.  
-* Non-candy items have been removed.  
+**Assumptions**  
+
+* Where country was "Trumpistan" the country is America    
+* Where country was "Cascadia" this is in "Other" as it is a real area while not being a country     
+* For gender "I'd rather not say", "Other", and "Not gathered" all have different implications and have been treated separately.   
+* The first numbers in the age column is the person's age   
+
+**Cleaning** 
+
+* A unique identifier was added for each survey response within each year: 
+  + eg. ...`mutate("id" = paste0("2015_", row_number()))`... -> 2015_1, 2015_2, etc.   
+
+* For each year of data the relevant columns were then extracted, renamed, and pivoted into the format:  
+|id | year | gender | country | age | trick_or_treating | candy_type | rating | rating_score  
+*Where rating_score is 1 = joy, 0 = meh, -1 = despair.*  
+
+* The names were then verified and the years were combined  
+  + `candy_full_data <- bind_rows(candy_2015_clean, candy_2016_clean, candy_2017_clean)`  
+
+* Missing genders were assigned to "Not gathered"    
+  + ...`mutate(gender = coalesce(gender, "Not gathered"))`...  
+  
+* Where ages were put in the country column (and nothing given in age), the values were moved over to age.  
+
+* Countries were then assigned to "America", "Canada", "UK", and "Other",  
+  after converting to lower case and removing punctuation    
+  + ...`mutate(country = str_to_lower(country)) %>% `  
+    `mutate(country = str_remove_all(country, "[:punct:]"))`...   
+  + Those that provided nonsensical country responses have been converted to NA.   
+    ...`case_when(`....`str_detect(country, nonsense_pattern) ~ NA,`...  
+
+* Age was extracted, converted to numeric, and then limited to between 4 and 116,  
+  all other ages have been converted to NA.  
+  + ...`mutate(age = str_extract(age, "[0-9]+"))`...
+
+* Non-candy items have been removed, this includes drugs, bread, comics, wine, and hugs.  
+  + ...`case_when(str_detect(candy_type, non_candy_pattern) ~ NA`...  
+  
+* Some candy items have been recoded based on list of patterns and replacements  
+  + eg. anything with "anonymous brown globs...." becomes "mary_janes,  
+    "candy_that_is_clearly_just_the_stuff_given_out_for_free_at_restaurants" -> restaurant_candy,  
+    etc.
 
 
 Set up and data format
-```{r, eval=FALSE}
+```{r, warning=FALSE, message=FALSE}
 library(tidyverse)
 library(here)
 ```
 
 ```{r}
 candy_data <- read_csv(here("clean_data/candy_data_clean.csv"))
-cat("Column headings:\n", names(candy_data), sep = "|")
 ```
+[Contents]
 
-## Total number of candy ratings given across the three years.
+## 1. Total number of candy ratings given across the three years. {#Question_1}
 Since each row is an individual rating, and all missing ratings have been removed, the number of ratings is equivalent to the number of rows.
-```{r}
+```{r question_1}
 num_of_ratings <- nrow(candy_data)
 
 cat("The total number of ratings is", format(num_of_ratings, big.mark = ","))
 ```
-## Average age of people who are going out trick or treating.
+[Contents]
+
+## 2. Average age of people who are going out trick or treating. {#Question_2}
 This is the average age of individual ids that have put "Yes" for trick_or_treating.
-```{r}
+```{r question_2}
 average_age <- candy_data %>% 
   group_by(id) %>% 
   filter(trick_or_treating == "Yes") %>% 
@@ -47,9 +105,11 @@ average_age <- candy_data %>%
 
 cat("The average age of people going trick or treating is", round(average_age, 0))
 ```
-## Average age of people who are not going trick or treating?
+[Contents]
+
+## 3. Average age of people who are not going trick or treating? {#Question_3}
 This is the average age of individual ids that have put "No" for trick_or_treating.
-```{r}
+```{r question_3}
 average_age_not_going <- candy_data %>% 
   group_by(id) %>% 
   filter(trick_or_treating == "No") %>% 
@@ -59,9 +119,11 @@ average_age_not_going <- candy_data %>%
 
 cat("The average age of people NOT going trick or treating is", round(average_age_not_going, 0))
 ```
-## For each rating which candy bar received the most of these ratings?
+[Contents]
+
+## 4. For each rating which candy bar received the most of these ratings? {#Question_4}
 There are three ratings: joy, meh, and despair. 
-```{r, warning=FALSE}
+```{r question_4, warning=FALSE}
 candy_data %>%
   group_by(candy_type, rating) %>% 
   summarise(count = n()) %>% # creates a count of the number of each type of ratings each type of candy recieved
@@ -72,8 +134,8 @@ candy_data %>%
 ```
 "Any full sized candy bar" is quite vague.   
 This can be removed from the dataset to find a more specific candy with the most joy ratings.  
-(note: it has not been cleaned from the data as this is still an interesting finding that people love candy bars in general)
-```{r, warning=FALSE}
+*(note: it has not been cleaned from the data as this is still an interesting finding that people love candy bars in general)*
+```{r question_4_refined, warning=FALSE}
 candy_data %>%
   group_by(candy_type, rating) %>% 
   filter(candy_type != "any_full_sized_candy_bar") %>% 
@@ -83,9 +145,10 @@ candy_data %>%
   slice_max(count) %>% 
   select(rating, candy_type, count)
 ```
+[Contents]
 
-## How many people rated Starburst as despair?
-```{r}
+## 5. How many people rated Starburst as despair? {#Question_5}
+```{r question_5}
 total_despair <- candy_data %>% 
   filter(str_detect(candy_type, "starburst"), rating == "despair") %>% 
   summarise(n()) %>% 
@@ -100,13 +163,15 @@ percent <- round((total_despair/total_ratings)*100, 0)
 
 cat("The total despair ratings for starbursts were ", format(total_despair, big.mark = ","), ". This was ", percent, "% of the total ratings.", sep = "")
 ```
-## Numeric Rating system
-Joy = 1
-Meh = 0
-Despair = -1
+[Contents]
+
+## Numeric Rating system {#Function}
+Joy = 1  
+Meh = 0  
+Despair = -1  
 
 Function to find the most popular candy type within each group (eg. gender, country) excluding "any_full_sized_candy_bar".
-```{r}
+```{r most_popular_candy_function}
 most_popular_by_category <- function(dataset, category){
   dataset %>% 
         group_by({{category}}, candy_type) %>% 
@@ -117,22 +182,28 @@ most_popular_by_category <- function(dataset, category){
         slice_max(average_rating)
 }
 ```
+[Contents]
 
-
-## What was the most popular candy bar by this rating system for each gender in the dataset?
-```{r, warning=FALSE}
+## 6. What was the most popular candy bar by this rating system for each gender in the dataset? {#Question_6}
+```{r question_6, message=FALSE}
 most_popular_by_category(candy_data, gender)
 ```
-## What was the most popular candy bar in each year?
-```{r, warning=FALSE}
+[Contents]
+
+## 7. What was the most popular candy bar in each year? {#Question_7}
+```{r question_7, message=FALSE}
 most_popular_by_category(candy_data, year)
 ```
-## What was the most popular candy bar by this rating for people in US, Canada, UK, and all other countries?
-```{r, warning=FALSE}
+[Contents]
+
+## 8. What was the most popular candy bar by this rating for people in US, Canada, UK, and all other countries? {#Question_8}
+```{r question_8, message=FALSE}
 most_popular_by_category(candy_data, country)
 ```
+[Contents]
 
-```{r}
+## Extra. Most popular candy by age range {#Extra}
+```{r most_popular_by_age, message=FALSE}
 candy_data %>% 
   mutate(age_bracket = case_when(
     age <= 10 ~ "10 and under",
@@ -145,3 +216,4 @@ candy_data %>%
   most_popular_by_category(age_bracket)
 ```
 
+[Contents]

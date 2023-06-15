@@ -195,6 +195,8 @@ candy_full_data_candy_clean <- candy_full_data_age_clean %>%
 
   # Each pattern will be searched for by str_detect
   # and matching values will be replaced with the corresponding new_value 
+  # This can be done by a long case_when, 
+    # I have used a for loop so I can easily add new recodes to the end of the lists and just run the loop again.
 
 recode_values <- list(
   pattern = list("anonymous_brown_globs", "100_grand_bar", "raisin",
@@ -208,7 +210,7 @@ recode_values <- list(
   # check for pattern in `pattern` 
   # replace with the value at the corresponding index in `new_value`
 for (i in 1:length(recode_values[[1]])){
-  candy_full_data_candy_tidy <- #this seems like an expensive step, is there another way?
+  candy_full_data_candy_tidy <-
     mutate(candy_full_data_candy_clean,
            candy_type = case_when(
              str_detect(candy_type, recode_values[[1]][[i]]) 
