@@ -1,0 +1,52 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(here)
+
+dog_data <- read_csv(here("clean_data/dog_data_clean"))
+```
+
+```{r}
+dog_data
+```
+
+## The client only counts a valid email address as one ending in ‘.com’. How many survey results have a valid email address.
+```{r}
+dog_data %>% 
+  filter(str_detect(email, ".com$")) %>% 
+  summarise(total = n_distinct(id))
+```
+
+## What’s the average amount spent on dog food for each dog size.
+```{r}
+dog_data %>% 
+  group_by(dog_size) %>% 
+  summarise(average_spend =
+              round(mean(amount_spent_on_dog_food, na.rm = TRUE), 2)) %>% 
+  arrange(average_spend)
+```
+
+
+## For owners whose surname starts with a letter in the second half of the alphabet (N onwards) what is the average age of their dog?
+```{r}
+dog_data %>% 
+  filter(str_detect(last_name, "^[N-Z]+")) %>% 
+  summarise(average_age = mean(dog_age, na.rm = TRUE))
+```
+
+## The dog_age column is the age in dog years. If the conversion is 1 human year = 6 dog years, then what is the average human age for dogs of each gender?
+```{r}
+dog_human_age <- dog_data %>% 
+  group_by(dog_gender) %>% 
+  summarise(average_age_in_human_years = mean(dog_age, na.rm = TRUE)/6)
+dog_human_age
+```
+
+## Create a plot of results of question 4.
+```{r}
+ggplot(dog_human_age, aes(dog_gender, average_age_in_human_years, color = dog_gender, fill = dog_gender)) + geom_col()
+```

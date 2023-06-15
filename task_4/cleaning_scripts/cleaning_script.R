@@ -205,6 +205,7 @@ recode_values <- list(
                    "gummy_bears", "fruit", "toblerone", "boo_berry_cereal")
 )
 
+#NOT FUNCTIONAL
 candy_full_data_candy_tidy <- candy_full_data_candy_clean %>% 
   mutate(
     for (i in 1:length(recode_values[[1]])){

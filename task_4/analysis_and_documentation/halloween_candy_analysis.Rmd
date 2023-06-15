@@ -17,7 +17,6 @@ The data has undergone several cleaning steps including:
 * Non-candy items have been removed.  
 
 
-
 Set up and data format
 ```{r, eval=FALSE}
 library(tidyverse)
@@ -134,7 +133,7 @@ most_popular_by_category(candy_data, country)
 ```
 
 ```{r}
-candy_data_ages <- candy_data %>% 
+candy_data %>% 
   mutate(age_bracket = case_when(
     age <= 10 ~ "10 and under",
     age <= 20 ~ "11-20",
@@ -142,8 +141,7 @@ candy_data_ages <- candy_data %>%
     age <= 40 ~ "31-40",
     age <= 60 ~ "41-60",
     age > 60 ~ "Over 60"
-  ))
-
-most_popular_by_category(candy_data_ages, age_bracket)
+  )) %>% 
+  most_popular_by_category(age_bracket)
 ```
 
