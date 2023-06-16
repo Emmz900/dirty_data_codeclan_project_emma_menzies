@@ -189,7 +189,7 @@ candy_full_data_candy_clean <- candy_full_data_age_clean %>%
   mutate(candy_type = case_when(
     str_detect(candy_type, non_candy_pattern) ~ NA,
     .default = candy_type)) %>% 
-  filter(!is.na(candy_type));;';'l
+  filter(!is.na(candy_type))
 
   ## Recoding -------------------
 
