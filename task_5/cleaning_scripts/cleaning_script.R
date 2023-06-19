@@ -32,10 +32,14 @@ rwa_data_long <- rwa_data_verified %>%
   mutate(answer = case_when(
     question %in% c(4, 6, 8, 9, 11, 13, 15, 18, 20, 21) ~ 9-answer,
     .default = answer
-  ))
+  )) %>% 
+  pivot_wider(names_from = question, values_from = answer) %>% 
+  mutate(rwa_score = rowwise(mean("3":"22")), .after = testelapse)
+  
 
 rwa_data_long %>% 
   group_by(id) %>% 
   mutate(rwa_score = mean(answer)) %>% 
-  select(-question, -answer)
+  select(-question, -answer) %>% 
+  ungroup()
 

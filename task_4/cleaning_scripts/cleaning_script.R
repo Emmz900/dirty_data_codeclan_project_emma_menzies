@@ -148,19 +148,14 @@ nonsense_pattern <- "one|where|never|gods|tropical|above|not|know|fear|denial|ea
   # Therefore any other "real" country should be "other"
 candy_full_data_country_clean <- candy_full_data_country_format %>% 
   mutate(country = case_when(
-    
     # Find all USA type names
     str_detect(country, america_pattern) ~ "us",
-    
     # canada
     str_detect(country, "canada") ~ "canada",
-    
     # Find all UK names
     str_detect(country, uk_pattern) ~ "uk",
-    
     # Remove nonsensical names
     str_detect(country, nonsense_pattern) ~ NA,
-    
     # All other countries in other category
     .default = "other"
   ))
