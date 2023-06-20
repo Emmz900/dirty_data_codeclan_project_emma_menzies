@@ -31,9 +31,9 @@ seabirds_clean %>%
 ```
 * There are 47,918 rows of data and 12 columns
 * The data is all in the expected format
-* There are 125 different scientific names, these encompass 47 families.
-* There are 142 different abbreviations for species.
-* There are 150 different common names.
+* There are 163 different scientific names, these encompass 48 families.
+* There are 152 different abbreviations for species.
+* There are 159 different common names.
 
 ***
 
@@ -111,6 +111,24 @@ penguin_species <- seabirds_clean %>%
 
 paste("There were", total_num_of_penguins,
       "penguins seen in total across", penguin_species, "different species.")
+```
+
+```{r}
+seabirds_clean %>% 
+  filter(!str_detect(species_common_name, "unidentified|\\/")) %>% 
+  group_by(species_common_name) %>% 
+  summarise(total = n()) %>% 
+  arrange(desc(total)) %>% 
+  head(10) %>% 
+  ggplot() +
+  geom_col(aes(reorder(species_common_name,total), total)) +
+  coord_flip() +
+  labs(
+    x = "Species",
+    y = "Total Number of Sightings Recorded",
+    title = "Most Common Species Sighted"
+  ) +
+  scale_y_continuous(labels = scales::comma)
 ```
 
 

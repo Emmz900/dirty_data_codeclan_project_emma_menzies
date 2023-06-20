@@ -43,12 +43,34 @@ dog_data %>%
 ## The dog_age column is the age in dog years. If the conversion is 1 human year = 6 dog years, then what is the average human age for dogs of each gender?
 ```{r}
 dog_human_age <- dog_data %>% 
-  group_by(dog_gender) %>% 
-  summarise(average_age_in_human_years = mean(dog_age, na.rm = TRUE)/6)
+  mutate(dog_gender = case_match(
+    dog_gender,
+    "F" ~ "Female",
+    "M" ~ "Male",
+    NA ~ "Unknown"
+  )) %>%  
+  group_by(dog_gender) %>%
+  summarise(average_age_in_human_years = mean(dog_age, na.rm = TRUE)/6) 
+
 dog_human_age
 ```
 
 ## Create a plot of results of question 4.
 ```{r}
-ggplot(dog_human_age, aes(dog_gender, average_age_in_human_years, color = dog_gender, fill = dog_gender)) + geom_col()
+ggplot(dog_human_age) +
+  aes(dog_gender, average_age_in_human_years, fill = dog_gender) + 
+  geom_col() +
+  labs(
+    x = "Gender",
+    y = "Average age in human years",
+    title = "Average dog ages converted to human years by gender"
+  ) +
+  scale_fill_manual(
+    values = c(
+      "Female" = "cadetblue",
+      "Male" = "chartreuse3",
+      "Unknown" = "bisque4"
+    ))
+
+ggsave("dog_ages.png")
 ```

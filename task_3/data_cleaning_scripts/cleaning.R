@@ -1,3 +1,4 @@
+
 library(readxl)
 library(tidyverse)
 
@@ -16,21 +17,23 @@ names(seabirds_ships)
 seabirds_ship_key %>% 
   filter(!is.na(Label)) %>% 
   print(n=27)
-
+  
+  ## Drop irrelevant data -------------
 seabirds_ships_reduced <- seabirds_ships %>% 
-  select(record, record_id, date, lat, long)
+  select(record_id, date, lat, long) %>% 
+  mutate(year = format(date, "%Y"), .after = date)
 
-# bird data refinement ------------------
+# Bird data refinement ------------------
 names(seabirds_birds)
 
-# check what each column means
+  # Check what each column means
 seabirds_bird_key %>% 
   filter(!is.na(Label)) %>% 
   print(n=26)
 
-# select and rename relevant data
-seabirds_birds <- seabirds_birds %>% 
-  select(record, record_id, species_common_name_taxon_age_sex_plumage_phase,
+  ## Select and rename relevant data -------------------
+seabirds_birds_renamed <- seabirds_birds %>% 
+  select(record_id, species_common_name_taxon_age_sex_plumage_phase,
          species_scientific_name_taxon_age_sex_plumage_phase, species_abbreviation, 
          count) %>% 
   rename(species_common_name = 
@@ -38,16 +41,41 @@ seabirds_birds <- seabirds_birds %>%
           species_scientific_name = 
            species_scientific_name_taxon_age_sex_plumage_phase)
 
-# simplify scientific name
-seabirds_birds <- seabirds_birds %>% 
-  mutate(species_scientific_name =
-           str_extract(species_scientific_name, "[:alpha:]+ [:alpha:]*"))
-
-
+  ## Simplify names -------------
+seabirds_birds_clean <- seabirds_birds_renamed %>% 
+  # recode common name "Shy / white-capped / Salvin's....." to "White capped albatross" 
+  mutate(species_common_name =
+           case_when(str_detect(species_common_name, "Shy /")
+                     ~ "White capped albatross",
+                     .default = species_common_name)) %>% 
+  mutate(
+    # remove the capital letters at the end of the name columns
+    species_scientific_name =
+      str_remove(species_scientific_name, "[:upper:]+$"),
+    
+    
+    # new column for just family
+    family =
+      str_extract(species_scientific_name, "^[:alpha:]+"),
+    # new column for just genus
+    genus = 
+      str_extract(species_scientific_name, "[:alpha:]+$"),
+    .after = species_scientific_name) %>% 
+  # remove "sensu lato" from common names
+  mutate(species_common_name = 
+           str_remove(species_common_name, "[0-9]*$"),
+         species_abbreviation = 
+           str_extract(species_abbreviation, "^[:upper:]+")) %>%
+  mutate(species_common_name =
+           str_remove(species_common_name, "[:upper:]*$")) %>% 
+  mutate(species_common_name =
+           str_remove(species_common_name, "sensu lato")) %>% 
+  relocate(family, .after = species_scientific_name)
+  
+  
 # Join data ------------------------
 seabirds_joined <-
-  full_join(seabirds_ships_reduced, seabirds_birds, by = "record_id") %>% 
-  rename(ship_record = record.x, bird_record = record.y)
+  full_join(seabirds_ships_reduced, seabirds_birds_clean, by = "record_id")
 
 seabirds_joined %>% 
   summarise(across(.cols = everything(), .fns = ~sum(is.na(.x))))
@@ -56,38 +84,13 @@ seabirds_joined %>%
 # this record is therefore not useful to us and can be removed.
 # There are also records which state no birds were recorded, these will be removed.
 
-# clean joined data   ---------------------- 
+# Clean joined data   ---------------------- 
 seabirds_joined_clean <- seabirds_joined %>% 
   # Remove missing species or no birds records
-  filter(!is.na(species_scientific_name),
-         species_common_name != "[NO BIRDS RECORDED]") %>% 
-
-  # recode common name "Shy / white-capped / Salvin's....." to "White capped albatross" 
-  mutate(species_common_name =
-           case_when(str_detect(species_common_name, "Shy /")
-                     ~ "White capped albatross",
-                     .default = species_common_name)) %>% 
-  # tidy names
-  mutate(
-    # remove the capital letters at the end of the common name for age
-    species_common_name = 
-      str_remove(species_common_name, "[:upper:]*[0-9]*$"),
-    
-    # remove the capital letters at the end of the abbreviation for age
-    species_abbreviation = 
-      str_extract(species_abbreviation, "^[:upper:]+"),
-    
-    # new column for just family
-    family =
-      str_extract(species_scientific_name, "^[:alpha:]+"),
-    
-    # new column for just genus
-    genus = 
-      str_extract(species_scientific_name, "[:alpha:]+$"),
-    .after = species_scientific_name) %>% 
-  
-  relocate(family, .after = species_scientific_name)
+  filter(
+    #!is.na(species_scientific_name),
+    species_common_name != "[NO BIRDS RECORDED]") 
 
   
-# Write csv
+# Write csv --------------
 write_csv(seabirds_joined_clean, "clean_data/seabirds_clean.csv")
