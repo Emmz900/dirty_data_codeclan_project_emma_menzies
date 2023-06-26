@@ -44,6 +44,7 @@ seabirds_birds_renamed <- seabirds_birds %>%
   ## Simplify names -------------
 seabirds_birds_clean <- seabirds_birds_renamed %>% 
   # recode common name "Shy / white-capped / Salvin's....." to "White capped albatross" 
+  # [https://en.wikipedia.org/wiki/White-capped_albatross]
   mutate(species_common_name =
            case_when(str_detect(species_common_name, "Shy /")
                      ~ "White capped albatross",
@@ -69,7 +70,8 @@ seabirds_birds_clean <- seabirds_birds_renamed %>%
   mutate(species_common_name =
            str_remove(species_common_name, "[:upper:]*$")) %>% 
   mutate(species_common_name =
-           str_remove(species_common_name, "sensu lato")) %>% 
+           str_remove(species_common_name, "sensu lato")) %>% # This just means "in a general sense". 
+            # [https://www.merriam-webster.com/dictionary/sensu%20lato]
   relocate(family, .after = species_scientific_name)
   
   
@@ -89,7 +91,8 @@ seabirds_joined_clean <- seabirds_joined %>%
   # Remove missing species or no birds records
   filter(
     #!is.na(species_scientific_name),
-    species_common_name != "[NO BIRDS RECORDED]") 
+    species_common_name != "[NO BIRDS RECORDED]") %>% 
+  mutate(species_common_name = str_remove(species_common_name, "[:upper:]*$"))
 
   
 # Write csv --------------

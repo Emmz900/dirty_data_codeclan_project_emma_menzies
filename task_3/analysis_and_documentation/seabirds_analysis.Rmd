@@ -112,16 +112,18 @@ penguin_species <- seabirds_clean %>%
 paste("There were", total_num_of_penguins,
       "penguins seen in total across", penguin_species, "different species.")
 ```
+# Visualisataions
 
+Most common species
 ```{r}
 seabirds_clean %>% 
   filter(!str_detect(species_common_name, "unidentified|\\/")) %>% 
-  group_by(species_common_name) %>% 
+  group_by(species_common_name, family) %>% 
   summarise(total = n()) %>% 
   arrange(desc(total)) %>% 
   head(10) %>% 
   ggplot() +
-  geom_col(aes(reorder(species_common_name,total), total)) +
+  geom_col(aes(reorder(species_common_name,total), total, fill = family)) +
   coord_flip() +
   labs(
     x = "Species",
@@ -129,7 +131,35 @@ seabirds_clean %>%
     title = "Most Common Species Sighted"
   ) +
   scale_y_continuous(labels = scales::comma)
+
+ggsave("most_common_species.png")
+```
+Total bird sightings
+```{r}
+seabirds_clean %>% 
+  group_by(year) %>% 
+  summarise(total = n()) %>% 
+  ggplot(aes(year, total)) +
+  geom_line() +
+  theme_light() +
+  labs(
+    x = "Year",
+    y = "Number of Sightings", 
+    title = "Total Number of Sightings per Year"
+  )
+
+ggsave("total_sighting.png") 
 ```
 
+```{r}
+seabirds_clean %>% 
+  group_by(family) %>% 
+  summarise(total = sum(count)) %>% 
+  arrange(total) %>% 
+  head(n = 10) %>% 
+  ggplot(aes(family, total)) +
+  geom_col() +
+  coord_flip()
+```
 
 

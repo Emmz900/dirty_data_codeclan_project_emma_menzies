@@ -27,8 +27,21 @@ There are further details of each project in the notebook/html within the analys
 ### Task 3 - Sea bird observation data {#3}
 **Data**
 
+This project cleans, joins, and investigates data from ships in the southern hemisphere on seabird sightings.
 
-This project cleans, combines, and investigates data from ships on seabird sightings.
+The cleaning script:
+
+* Selects the relevant columns and renames tham where appropriate
+* Joins the data from the ships to the data on the birds
+* Creates columns for year, family, and genus
+* Removes unnecessary abbreviations from the bird names
+* Removes entries where no birds were recorded
+
+Data summary:
+
+![](task_3\analysis_and_documentation\total_sighting.png)
+
+![](task_3\analysis_and_documentation\most_common_species.png)
 
 
 ### Task 4 - Halloween Candy data {#4}
