@@ -24,7 +24,7 @@ Each task has 4 folders:
 
 There are further details of each project in the notebook/html within the analysis scripts folder.
 
-### Task 3 - Sea bird observation data {3}
+### Task 3 - Sea bird observation data (3)
 **Data**
 
 
