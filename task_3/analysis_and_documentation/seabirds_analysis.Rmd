@@ -162,4 +162,10 @@ seabirds_clean %>%
   coord_flip()
 ```
 
+```{r}
+seabirds_clean %>% 
+  mutate(species_common_name = str_to_title(str_remove(species_common_name, "\\(unidentified\\)")),
+         type_of_bird = str_extract(species_common_name, "[A-Z][a-z]+$"), .after = species_common_name)
+```
+
 
