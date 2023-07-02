@@ -3,7 +3,7 @@ title: "Dog Data Analysis"
 author: "Emma Menzies"
 output: html_notebook
 ---
-
+# Set up
 ```{r}
 library(tidyverse)
 library(here)
@@ -14,8 +14,29 @@ dog_data <- read_csv(here("clean_data/dog_data_clean"))
 ```{r}
 dog_data
 ```
+## Survey Responses Received by size and gender of dog
+```{r}
+dog_data %>% 
+  filter(!is.na(dog_size) & !is.na(dog_gender)) %>% 
+  mutate(dog_size = factor(dog_size, levels = c("XS", "S", "M", "L", "XL"))) %>% 
+  group_by(dog_size, dog_gender) %>% 
+  summarise(total_responses = n()) %>% 
+  ggplot(aes(dog_size, total_responses, fill = dog_gender)) +
+  geom_col() +
+  theme_classic() +
+  #scale_fill_brewer(palette = "Pastel1") +
+  labs(
+    title = "Number of Responses Received by Size of Dog",
+    x = "Size of Dog",
+    y = "Number of Survey Responses",
+    fill = "Gender"
+  )
 
-## The client only counts a valid email address as one ending in ‘.com’. How many survey results have a valid email address.
+ggsave("responses_recieved.png")
+```
+
+# 1. Valid Email Addresses
+The client only counts a valid email address as one ending in ‘.com’. How many survey results have a valid email address.
 Since some rows have been split into multiple rows with the same individuals data count only distinct ids.
 ```{r}
 dog_data %>% 
@@ -23,7 +44,8 @@ dog_data %>%
   summarise(total = n_distinct(id))
 ```
 
-## What’s the average amount spent on dog food for each dog size.
+# 2. Average Dog Food Spend
+What’s the average amount spent on dog food for each dog size.
 ```{r}
 dog_data %>% 
   group_by(dog_size) %>% 
@@ -31,16 +53,38 @@ dog_data %>%
               round(mean(amount_spent_on_dog_food, na.rm = TRUE), 2)) %>% 
   arrange(average_spend)
 ```
+## Visualisation
+```{r}
+dog_data %>% 
+  filter(!is.na(dog_size)) %>% 
+  mutate(dog_size = factor(dog_size, levels = c("XS", "S", "M", "L", "XL"))) %>% 
+  group_by(dog_size) %>% 
+  summarise(average_spend =
+              round(mean(amount_spent_on_dog_food, na.rm = TRUE), 2)) %>% 
+  arrange(average_spend) %>% 
+  ggplot(aes(dog_size, average_spend, fill = dog_size)) +
+  geom_col(show.legend = FALSE) +
+  theme_classic() +
+  scale_fill_brewer(palette = "Pastel1") +
+  labs(
+    title = "Average Spend on Dog Food by Size",
+    x = "Size of Dog",
+    y = "Average Spend"
+  )
 
+ggsave("spend_vs_size.png")
+```
 
-## For owners whose surname starts with a letter in the second half of the alphabet (N onwards) what is the average age of their dog?
+# 3. Average age
+For owners whose surname starts with a letter in the second half of the alphabet (N onwards) what is the average age of their dog?
 ```{r}
 dog_data %>% 
   filter(str_detect(last_name, "^[N-Z]+")) %>% 
   summarise(average_age = mean(dog_age, na.rm = TRUE))
 ```
 
-## The dog_age column is the age in dog years. If the conversion is 1 human year = 6 dog years, then what is the average human age for dogs of each gender?
+# 4. Dog years to human years
+The dog_age column is the age in dog years. If the conversion is 1 human year = 6 dog years, then what is the average human age for dogs of each gender?
 ```{r}
 dog_human_age <- dog_data %>% 
   mutate(dog_gender = case_match(
@@ -55,7 +99,7 @@ dog_human_age <- dog_data %>%
 dog_human_age
 ```
 
-## Create a plot of results of question 4.
+## Visualisation
 ```{r}
 ggplot(dog_human_age) +
   aes(dog_gender, average_age_in_human_years, fill = dog_gender) + 
@@ -74,3 +118,6 @@ ggplot(dog_human_age) +
 
 ggsave("dog_ages.png")
 ```
+
+
+

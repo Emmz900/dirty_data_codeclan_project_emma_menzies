@@ -36,8 +36,8 @@ dog_data_clean <- dog_data_individuals %>%
   )) %>% 
   # Clean dog_gender
   mutate(dog_gender = case_when(
-    str_detect(dog_gender, "F") ~ "F",
-    str_detect(dog_gender, "M") ~ "M",
+    str_detect(dog_gender, "F") ~ "Female",
+    str_detect(dog_gender, "M") ~ "Male",
     .default = NA
   )) %>% 
   # Clean dog_age
