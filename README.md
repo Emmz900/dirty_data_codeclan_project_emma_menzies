@@ -13,6 +13,11 @@ It consists of several different tasks requiring data cleaning and wrangling.
 
 ## Skills Showcased
 
+* Data Cleaning
+* Data Wrangling with DPLYR
+* Joins
+* Functions and `For` Loops
+* Basic Visualisations
 
 ## Folder Structure
 Each task has 4 folders:
