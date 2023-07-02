@@ -77,7 +77,13 @@ Illustration of results:
 
 ### Task 6 - Dog Owners Survey 
 
+This task cleans and analyses survey responses from dog owners regarding the size, gender, and age of their dog, as well as the average amount spent on dog food monthly.
 
+Responses:
+![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_6/analysis_script/responses_recieved.png)
+
+Analysis:
 ![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_6/analysis_script/dog_ages.png) 
- 
+
+![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_6/analysis_script/spend_vs_size.png)
  
