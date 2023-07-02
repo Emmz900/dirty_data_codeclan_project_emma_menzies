@@ -73,11 +73,11 @@ most_popular_by_category <- function(dataset, category){
 
 Survey Results:
 *Note: Country data was not collected in 2015.*
-![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_4/analysis_and_documentation/candy_ratings_by_country_plot.png)
-
+![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_4/analysis_and_documentation/survey_results_received.png)
 
 Illustration of results:
-![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_4/analysis_and_documentation/survey_results_received.png)
+![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_4/analysis_and_documentation/candy_ratings_by_country_plot.png)
+
 
 ## (Task 5 - Right Wing Authoritarianism)
 *Not Completed*
