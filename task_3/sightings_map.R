@@ -29,20 +29,9 @@ ui <- fluidPage(
       leafletOutput("sightings_map")
     )
   )
-  
-  
-  
 )
 
 server <- function(input, output, session) {
-  
-  # boat <- makeIcon(
-  #   iconUrl = boat.file,
-  #   iconWidth = 10,
-  #   iconHeight = 25
-  # )
-  # 
-  # boat.file <- "http://cdn.onlinewebfonts.com/svg/download_498189.png"
   
   output$sightings_map <- renderLeaflet({
     seabirds %>% 
@@ -50,8 +39,6 @@ server <- function(input, output, session) {
       leaflet() %>% 
       addProviderTiles(provider = providers$OpenStreetMap) %>% 
       addMarkers(lng = ~ long, lat = ~ lat,
-                        #icon = boat,
-                        #color = ~ species_common_name,
                         label = ~species_common_name)
   })
   

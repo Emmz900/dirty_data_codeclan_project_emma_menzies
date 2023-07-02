@@ -1,4 +1,3 @@
-
 library(readxl)
 library(tidyverse)
 
@@ -53,7 +52,10 @@ seabirds_birds_clean <- seabirds_birds_renamed %>%
     # remove the capital letters at the end of the name columns
     species_scientific_name =
       str_remove(species_scientific_name, "[:upper:]+$"),
-    
+    species_abbreviation = 
+           str_extract(species_abbreviation, "^[:upper:]+"),
+  species_common_name =
+           str_remove(species_common_name, "[:upper:]*$"), 
     
     # new column for just family
     family =
@@ -64,11 +66,7 @@ seabirds_birds_clean <- seabirds_birds_renamed %>%
     .after = species_scientific_name) %>% 
   # remove "sensu lato" from common names
   mutate(species_common_name = 
-           str_remove(species_common_name, "[0-9]*$"),
-         species_abbreviation = 
-           str_extract(species_abbreviation, "^[:upper:]+")) %>%
-  mutate(species_common_name =
-           str_remove(species_common_name, "[:upper:]*$")) %>% 
+           str_remove(species_common_name, "[0-9]*$")) %>% 
   mutate(species_common_name =
            str_remove(species_common_name, "sensu lato")) %>% # This just means "in a general sense". 
             # [https://www.merriam-webster.com/dictionary/sensu%20lato]
@@ -91,9 +89,7 @@ seabirds_joined_clean <- seabirds_joined %>%
   # Remove missing species or no birds records
   filter(
     #!is.na(species_scientific_name),
-    species_common_name != "[NO BIRDS RECORDED]") %>% 
-  mutate(species_common_name = str_remove(species_common_name, "[:upper:]*$"))
+    species_common_name != "[NO BIRDS RECORDED]")
 
-  
 # Write csv --------------
 write_csv(seabirds_joined_clean, "clean_data/seabirds_clean.csv")

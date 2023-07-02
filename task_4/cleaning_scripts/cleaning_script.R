@@ -136,7 +136,7 @@ candy_full_data_country_format <- candy_full_data_country_numeric %>%
   mutate(country = str_remove_all(country, "[:punct:]"))
 
   ## Fix variations in countries ------------
-america_pattern <- "^us|u[a-z]* s|usa|[eu]+r[i]*ca|murrika|yoo ess|pitts|carolina|california|jersey|trump|york"
+america_pattern <- "^us|u[a-z]* s|usa|[eu]+r[i]*ca|murrika|yoo ess|pitts|carolina|california|jersey|trump|york|alask"
 
 uk_pattern <- "^uk|^u[a-z]* k[a-z]*|en[gd]land|scotland"
 
@@ -147,17 +147,26 @@ nonsense_pattern <- "one|where|never|gods|tropical|above|not|know|fear|denial|ea
   # The analysis is interested in Canada, US, UK, and other. 
   # Therefore any other "real" country should be "other"
 candy_full_data_country_clean <- candy_full_data_country_format %>% 
-  mutate(country = case_when(
+  mutate(
+    country = case_when(
     # Find all USA type names
     str_detect(country, america_pattern) ~ "us",
-    # canada
+    # Canada
     str_detect(country, "canada") ~ "canada",
     # Find all UK names
     str_detect(country, uk_pattern) ~ "uk",
     # Remove nonsensical names
     str_detect(country, nonsense_pattern) ~ NA,
+    is.na(country) ~ NA,
+    
     # All other countries in other category
     .default = "other"
+    
+    # OR all valid countries
+    # str_detect(country, "espa") ~ "spain",
+    # str_detect(country, "cascadia") ~ "cascadia",
+    # str_detect(country, "netherlands") ~ "the netherlands",
+    # .default = country
   ))
 
 # Step 5 - Clean `age` ---------------------------------------------
@@ -196,16 +205,18 @@ candy_full_data_candy_clean <- candy_full_data_age_clean %>%
 recode_values <- list(
   pattern = list("anonymous_brown_globs", "100_grand_bar", "raisin",
                  "chick_o_sticks", "sourpatch_kids", "sweetums", "restaurant",
-                 "gummy_bear", "fruit", "tolberone", "boo_berry"),
+                 "gummy_bear", "fruit", "tolberone", "boo_berry", "bonkers",
+                 "smarties", "licorice"),
   new_value = list("mary_janes","100_grand_bar","raisins","chick_o_sticks",
                    "sourpatch_kids","sweetums", "restaurant_candy",
-                   "gummy_bears", "fruit", "toblerone", "boo_berry_cereal")
+                   "gummy_bears", "fruit", "toblerone", "boo_berry_cereal", "bonkers",
+                   "smarties", "licorice")
 )
 
   # check for pattern in `pattern` 
   # replace with the value at the corresponding index in `new_value`
 for (i in 1:length(recode_values[[1]])){
-  candy_full_data_candy_tidy <-
+  candy_full_data_candy_clean <-
     mutate(candy_full_data_candy_clean,
            candy_type = case_when(
              str_detect(candy_type, recode_values[[1]][[i]]) 

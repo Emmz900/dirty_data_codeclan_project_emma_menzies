@@ -6,7 +6,7 @@ output:
     df_print: paged
 ---
 
-### Contents  
+# Contents  
 
 1. [Introduction and set up]  
 2. [Question 1](#Question_1)
@@ -20,7 +20,7 @@ output:
 10. [Question 8](#Question_8)
 11. [Extra](#Extra)
 
-## Introduction and set up
+# Introduction and set up
 
 **Data**  
 
@@ -83,6 +83,7 @@ library(here)
 candy_data <- read_csv(here("clean_data/candy_data_clean.csv"))
 ```
 [Contents]
+# Analysis
 
 ## 1. Total number of candy ratings given across the three years. {#Question_1}
 Since each row is an individual rating, and all missing ratings have been removed, the number of ratings is equivalent to the number of rows.
@@ -165,7 +166,7 @@ cat("The total despair ratings for starbursts were ", format(total_despair, big.
 ```
 [Contents]
 
-## Funtion {#Function}
+### Funtion {#Function}
 Numeric Rating System:  
 Joy = 1  
 Meh = 0  
@@ -218,3 +219,53 @@ candy_data %>%
 ```
 
 [Contents]
+
+# Visualisations
+
+## Rating by Country
+```{r}
+candy_data %>% 
+  filter(candy_type %in% c("reese_s_peanut_butter_cups", "skittles", "sourpatch_kids", "licorice", "bonkers", "lollipops"),
+         !is.na(country)) %>% 
+  group_by(country, candy_type) %>% 
+  summarise(rating = mean(rating_score), total_ratings = n()) %>% 
+  filter(total_ratings > 10) %>% 
+  arrange(desc(rating)) %>% 
+  mutate(candy_type = case_when(
+    str_detect(candy_type, "reese") ~ "Reese's Peanut Butter Cups",
+  .default = str_to_title(str_replace_all(candy_type, "_", " "))),
+  country = str_to_upper(country)) %>% 
+  ggplot(aes(candy_type, rating, fill = country)) +
+  geom_col(position = "dodge") +
+  labs(
+    title = "Rating of Various Candy Types by Country",
+    x = "Candy",
+    y = "Average Rating",
+    fill = "Country"
+  ) +
+  scale_y_continuous(limits = c(-1, 1)) +
+  coord_flip() +
+  theme_classic()
+
+ggsave("candy_ratings_by_country_plot.png")
+```
+## Survey Responses Received
+```{r}
+candy_data %>% 
+  mutate(year = factor(year, levels = c(2015, 2016, 2017)),
+         country = coalesce(country, "Not Given")) %>% 
+  group_by(year, country) %>% 
+  summarise(survey_results = n_distinct(id)) %>% 
+  ggplot(aes(year, survey_results, fill = str_to_upper(country))) +
+  geom_col() +
+  labs(
+    title = "Survey Results Received by Year and Country",
+    x = "Year",
+    y = "Number of Responses",
+    fill = "Country"
+  ) +
+  theme_classic()
+
+ggsave("survey_results_received.png")
+```
+
