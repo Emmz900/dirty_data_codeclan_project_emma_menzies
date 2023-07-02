@@ -25,7 +25,7 @@ Each task has 4 folders:
 There are further details of each project in the notebook/html within the analysis scripts folder.
 
 ### Task 3 - Sea bird observation data 
-**Data**
+**Data**  
 
 This project cleans, joins, and investigates data from ships in the southern hemisphere on seabird sightings.
 
@@ -37,7 +37,7 @@ The cleaning script:
 * Removes unnecessary abbreviations from the bird names
 * Removes entries where no birds were recorded
 
-**Data summary:**
+**Data summary:**   
 
 ![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_3/analysis_and_documentation/total_sighting.png)
 
@@ -45,7 +45,8 @@ The cleaning script:
 
 ### Task 4 - Halloween Candy data 
 
-**Data**
+**Data**  
+
 This project joins survey data regarding Halloween Candy from three different years and cleans it.  
 The data is then analysed. A thorough description of the cleaning process is given within the analysis.  
 
@@ -63,7 +64,8 @@ most_popular_by_category <- function(dataset, category){
 }
 ```
 
-**Data Summary**
+**Data Summary**   
+
 Survey Results:
 *Note: Country data was not collected in 2015.*
 ![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_4/analysis_and_documentation/candy_ratings_by_country_plot.png)
