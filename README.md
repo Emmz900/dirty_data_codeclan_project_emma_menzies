@@ -39,10 +39,9 @@ The cleaning script:
 
 **Data summary:**
 
-![](task_3\analysis_and_documentation\total_sighting.png)
+![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_3/analysis_and_documentation/total_sighting.png)
 
-![](task_3\analysis_and_documentation\most_common_species.png)
-
+![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_3/analysis_and_documentation/most_common_species.png)
 
 ### Task 4 - Halloween Candy data {#4}
 
@@ -66,17 +65,17 @@ most_popular_by_category <- function(dataset, category){
 
 **Data Summary**
 Survey Results:
-![](task_4\analysis_and_documentation\survey_results_received.png)
+![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_4/analysis_and_documentation/candy_ratings_by_country_plot.png)
 *Note: Country data was not collected in 2015.*
 
 Illustration of results:
-![](task_4\analysis_and_documentation\candy_ratings_by_country_plot.png) 
+![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_4/analysis_and_documentation/survey_results_received.png)
 
 ### Task 5 - Right Wing Authoritarianism {#5}
 
 
 ### Task 6 - Dog Owners Survey {#6}
 
-![](task_6\analysis_script\dog_ages.png) 
+![](https://github.com/Emmz900/dirty_data_codeclan_project_emma_menzies/blob/main/task_6/analysis_script/dog_ages.png) 
  
  
