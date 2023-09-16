@@ -80,7 +80,7 @@ Illustration of results:
 
 
 ## (Task 5 - Right Wing Authoritarianism)
-*Not Completed*
+*In Progress*
 
 ## Task 6 - Dog Owners Survey 
 
